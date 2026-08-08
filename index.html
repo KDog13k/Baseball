@@ -141,6 +141,8 @@
             .ff-suggestions { max-height: 200px; }
             .ff-suggestion-item { padding: 14px; font-size: 0.95rem; }
             #submitAnswer, #continueBtn, .close-btn { padding: 14px 22px !important; font-size: 1rem !important; flex: 1 1 auto; }
+            .info-item { padding: 12px 8px; }
+            .info-item-title { font-size: 0.8rem; white-space: nowrap; }
         }
         @media (max-width: 480px) {
             .baseball-field { height: 350px; }
@@ -171,9 +173,9 @@
             <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin: 15px 0; border: 2px solid rgba(200,16,46,0.3);">
                 <h3 style="color: #c8102e; margin-bottom: 15px; text-align: left;">Scoring System:</h3>
                 <ul style="list-style: none; padding-left: 0; text-align: left;">
-                    <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #2ecc71;">🟢 <strong>Easy:</strong> Single (advance 1 base)</li>
-                    <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #f2994a;">🟡 <strong>Medium:</strong> Double (advance 2 bases)</li>
-                    <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #e74c3c;">🔴 <strong>Hard:</strong> Triple (advance 3 bases)</li>
+                    <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #2ecc71;">🟢 <strong>Easy:</strong> Single<br><span style="opacity: 0.7; font-size: 0.9em;">(advance 1 base)</span></li>
+                    <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #f2994a;">🟡 <strong>Medium:</strong> Double<br><span style="opacity: 0.7; font-size: 0.9em;">(advance 2 bases)</span></li>
+                    <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #e74c3c;">🔴 <strong>Hard:</strong> Triple<br><span style="opacity: 0.7; font-size: 0.9em;">(advance 3 bases)</span></li>
                     <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #8e2de2;">🟣 <strong>Nightmare:</strong> Home Run!</li>
                 </ul>
                 <h3 style="color: #c8102e; margin: 25px 0 15px 0; text-align: left;">Game Rules:</h3>
@@ -189,7 +191,7 @@
         <div class="timer-option">
             <label style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <input type="checkbox" id="timerMode" style="width: 18px; height: 18px; cursor: pointer;">
-                <span style="font-size: 1rem;">⏱️ Timer Mode (30 seconds per question)</span>
+                <span style="font-size: 1rem; text-align: left;">⏱️ Timer Mode<br><span style="opacity: 0.7; font-size: 0.85em;">(30 seconds per question)</span></span>
             </label>
         </div>
         <button onclick="startGame()" style="background: linear-gradient(135deg, #c8102e, #8b0a1f); color: white; border: none; padding: 20px 50px; font-size: 1.4rem; border-radius: 35px; cursor: pointer; font-weight: bold; margin-top: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: all 0.3s ease; position: relative; z-index: 1;">PLAY BALL ⚾</button>
