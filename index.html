@@ -67,6 +67,35 @@
         .answer-option { padding: 15px; border: 3px solid rgba(255,255,255,0.3); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-size: 1rem; background: rgba(255,255,255,0.1); color: white; font-weight: 500; backdrop-filter: blur(5px); }
         .answer-option:hover { border-color: #ffd700; background: rgba(255,215,0,0.2); }
         .answer-option.selected { border-color: #ffd700; background: rgba(255,215,0,0.3); box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+        #ffAnswerInput:focus { outline: none; border-color: #ffd700; background: rgba(255,215,0,0.15); }
+        #ffAnswerInput::placeholder { color: rgba(255,255,255,0.5); }
+        .ff-suggestions {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #2d2d54;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            -webkit-overflow-scrolling: touch;
+        }
+        .ff-suggestions.open { display: block; }
+        .ff-suggestion-item {
+            padding: 10px 15px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .ff-suggestion-item:last-child { border-bottom: none; }
+        .ff-suggestion-item:hover, .ff-suggestion-item.active {
+            background: rgba(255,215,0,0.25);
+        }
         .answer-option.correct { border: 3px solid #2ecc71; box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3); background: rgba(46,204,113,0.3); color: #2ecc71; animation: correctPulse 0.6s ease; }
         @keyframes correctPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .answer-option.incorrect { border: 3px solid #e74c3c; box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3); background: rgba(231,76,60,0.3); color: #e74c3c; animation: shake 0.5s ease; }
@@ -94,27 +123,6 @@
         .timer-option { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 20px 0; position: relative; z-index: 1; }
         .share-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: 2px solid #ffd700; padding: 12px 25px; font-size: 1rem; border-radius: 25px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: all 0.3s ease; }
         .share-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
-        /* ── FREE-FORM STYLES ── */
-        .ff-wrap { position: relative; margin-bottom: 15px; }
-        .ff-label { color: rgba(255,255,255,0.85); font-size: .95rem; margin-bottom: 8px; display: block; }
-        .ff-input { width: 100%; padding: 15px 18px; font-size: 1.1rem; border: 3px solid rgba(255,255,255,0.3); border-radius: 12px; background: rgba(255,255,255,0.15); color: white; outline: none; transition: border-color .2s; backdrop-filter: blur(5px); }
-        .ff-input:focus { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.3); }
-        .ff-input::placeholder { color: rgba(255,255,255,0.45); }
-        .ff-input.correct-input  { border-color: #2ecc71; background: rgba(46,204,113,0.3); animation: correctPulse 0.6s ease; }
-        .ff-input.incorrect-input{ border-color: #e74c3c; background: rgba(231,76,60,0.3);  animation: shake 0.5s ease; }
-        .ff-input:disabled { opacity: 0.85; cursor: default; }
-        .ac-list { position: absolute; top: 100%; left: 0; right: 0; background: linear-gradient(135deg, #2c1b6e, #4a1c7a); border: 2px solid #ffd700; border-top: none; border-radius: 0 0 12px 12px; max-height: 230px; overflow-y: auto; z-index: 200; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
-        .ac-item { padding: 13px 18px; cursor: pointer; font-size: 1rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); transition: background .15s; }
-        .ac-item:last-child { border-bottom: none; }
-        .ac-item:hover, .ac-item.active { background: rgba(255,215,0,0.25); color: #ffd700; }
-        .ff-hint { font-size: .85rem; color: rgba(255,255,255,0.55); margin-top: 6px; }
-        .correct-reveal { margin-top: 10px; padding: 10px 15px; background: rgba(231,76,60,0.25); border-left: 4px solid #e74c3c; border-radius: 8px; color: #ff9999; font-weight: bold; font-size: .95rem; }
-
-        /* ── RELEASE BADGE ── */
-        .release-badge { display: inline-block; background: rgba(200,16,46,0.3); border: 2px solid #c8102e; border-radius: 10px; padding: 8px 20px; margin: 8px 0 4px; color: #fff; font-weight: bold; font-size: .95rem; position: relative; z-index: 1; }
-        .next-release-txt { color: #888; font-size: .85rem; margin-bottom: 10px; position: relative; z-index: 1; }
-
         @media (max-width: 768px) {
             .baseball-field { height: 400px; }
             .position { width: 50px; height: 50px; font-size: 11px; }
@@ -129,6 +137,10 @@
             .welcome-screen, .game-over { padding: 30px 20px; }
             .welcome-screen h1 { font-size: 2rem; }
             .achievement-popup { max-width: 250px; padding: 15px; font-size: 0.9rem; }
+            #ffAnswerInput { padding: 16px 14px; font-size: 16px; }
+            .ff-suggestions { max-height: 200px; }
+            .ff-suggestion-item { padding: 14px; font-size: 0.95rem; }
+            #submitAnswer, #continueBtn, .close-btn { padding: 14px 22px !important; font-size: 1rem !important; flex: 1 1 auto; }
         }
         @media (max-width: 480px) {
             .baseball-field { height: 350px; }
@@ -144,9 +156,7 @@
     <div id="welcomeScreen" class="welcome-screen">
         <h1>⚾ MLB TRIVIA</h1>
         <div class="subtitle">Daily Challenge</div>
-        <p class="tagline">Test your baseball IQ. One game per release.</p>
-        <div id="releaseBadge" class="release-badge" style="display:none"></div>
-        <div id="nextReleaseTxt" class="next-release-txt"></div>
+        <p class="tagline">Test your baseball IQ. One game per day.</p>
         <div class="quick-info">
             <p style="color: #fff; font-weight: bold; margin-bottom: 15px;">HOW IT WORKS</p>
             <div class="quick-info-grid">
@@ -172,7 +182,7 @@
                     <li style="margin: 10px 0;">• Opponent scores on each wrong answer</li>
                     <li style="margin: 10px 0;">• Tie game triggers sudden-death tiebreaker</li>
                     <li style="margin: 10px 0;">• Track your stats and unlock achievements</li>
-                    <li style="margin: 10px 0;">• New questions every Tuesday, Friday & Sunday!</li>
+                    <li style="margin: 10px 0;">• New questions three times a week - check back often!</li>
                 </ul>
             </div>
         </div>
@@ -245,22 +255,14 @@
             <span id="difficultyBadge" class="difficulty-badge"></span>
         </div>
         <div id="questionText" class="question-text"></div>
-
-        <!-- Multiple choice options -->
         <div id="answerOptions" class="answer-options"></div>
-
-        <!-- Free-form input (shown for ff questions) -->
-        <div id="ffSection" style="display:none; margin-bottom:15px;">
-            <label class="ff-label">Type the player's full name:</label>
-            <div class="ff-wrap">
-                <input id="ffInput" class="ff-input" type="text"
-                       placeholder="e.g. Corbin Carroll" autocomplete="off"
-                       oninput="onFFInput()" onkeydown="onFFKey(event)">
-                <div id="acList" class="ac-list" style="display:none"></div>
-            </div>
-            <div class="ff-hint">💡 Start typing — select a name then click Submit Answer</div>
+        <div id="ffAnswerContainer" style="display:none; margin-bottom: 15px; position: relative;">
+            <div style="margin-bottom: 8px; font-size: 0.95rem; color: rgba(255,255,255,0.8); font-weight: 500;">Type your answer:</div>
+            <input type="text" id="ffAnswerInput" placeholder="e.g. Corbin Carroll" autocomplete="off"
+                style="width: 100%; padding: 15px; border-radius: 12px; border: 3px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 1.1rem; font-weight: 500; box-sizing: border-box;">
+            <div id="ffSuggestions" class="ff-suggestions"></div>
+            <div style="margin-top: 8px; font-size: 0.85rem; color: rgba(255,255,255,0.6);">💡 Start typing — select a name then click Submit Answer</div>
         </div>
-
         <div class="modal-buttons" style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap;">
             <button id="submitAnswer" onclick="submitAnswer()" disabled style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 1.1rem; font-weight: bold;">Submit Answer</button>
             <button id="continueBtn" style="display: none; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 1.1rem; font-weight: bold;">Continue</button>
@@ -280,228 +282,37 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// CONFIG  — fill these in
-// ─────────────────────────────────────────────
-const SHEET_URL    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpLfUzGIEGTTgiH_vGJWtRfv5m_Y47Ux8hiToGn3X8b9Ih7uCKU1XxyyjaIaMWIERv8xGvDO69cL90/pub?gid=1566119583&single=true&output=csv';
-const PLAYER_NAMES_URL = 'https://raw.githubusercontent.com/KDog13k/BB/main/mlb_player_names.json';
-
-// Release days: 0 = Sunday, 2 = Tuesday, 5 = Friday
-const RELEASE_DAYS = [0, 2, 5];
-const DAY_NAMES    = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-const MLB_TEAMS = [
-    "Arizona Diamondbacks","Atlanta Braves","Baltimore Orioles","Boston Red Sox",
-    "Chicago Cubs","Chicago White Sox","Cincinnati Reds","Cleveland Guardians",
-    "Colorado Rockies","Detroit Tigers","Houston Astros","Kansas City Royals",
-    "Los Angeles Angels","Los Angeles Dodgers","Miami Marlins","Milwaukee Brewers",
-    "Minnesota Twins","New York Mets","New York Yankees","Oakland Athletics",
-    "Philadelphia Phillies","Pittsburgh Pirates","San Diego Padres","San Francisco Giants",
-    "Seattle Mariners","St. Louis Cardinals","Tampa Bay Rays","Texas Rangers",
-    "Toronto Blue Jays","Washington Nationals"
-];
-const POS_NAME_MAP = {
-    'pitcher': 1, 'catcher': 2, '1st base': 3, '2nd base': 4,
-    '3rd base': 5, 'shortstop': 6, 'left field': 7,
-    'center field': 8, 'right field': 9, 'tiebreaker': 'tiebreaker'
-};
-
-// ─────────────────────────────────────────────
-// RELEASE DATE HELPERS
-// ─────────────────────────────────────────────
-let currentReleaseDate = '';
-
-function getCurrentReleaseDate() {
-    const now = new Date();
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() - i);
-        if (RELEASE_DAYS.includes(d.getDay())) {
-            return d.toISOString().split('T')[0];
-        }
-    }
-    return new Date().toISOString().split('T')[0];
-}
-
-function getNextRelease() {
-    const now = new Date();
-    for (let i = 1; i <= 7; i++) {
-        const d = new Date(now);
-        d.setDate(now.getDate() + i);
-        if (RELEASE_DAYS.includes(d.getDay())) {
-            return DAY_NAMES[d.getDay()];
-        }
-    }
-    return 'soon';
-}
-
-function updateReleaseBadge() {
-    if (!currentReleaseDate) return;
-    const [y,m,d] = currentReleaseDate.split('-');
-    const dt   = new Date(+y, m-1, +d);
-    const label = `📅 ${DAY_NAMES[dt.getDay()]}, ${dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
-    const badge = document.getElementById('releaseBadge');
-    badge.textContent = label;
-    badge.style.display = 'inline-block';
-    document.getElementById('nextReleaseTxt').textContent = `Next release: ${getNextRelease()}`;
-}
-
-// ─────────────────────────────────────────────
-// PLAYER NAMES  (autocomplete)
-// ─────────────────────────────────────────────
-let playerNames = [];
-let acIdx = -1;
-
-async function loadPlayerNames() {
-    try {
-        const res  = await fetch(PLAYER_NAMES_URL);
-        if (!res.ok) throw new Error('fetch failed');
-        const data = await res.json();
-        playerNames = [...MLB_TEAMS,...(data.names || []), ...MLB_TEAMS].sort();
-        console.log(`Loaded ${playerNames.length} player names for autocomplete`);
-    } catch(e) {
-        console.log('Player names unavailable — autocomplete will be limited');
-        playerNames = [
-            "Aaron Judge","Albert Pujols","Alex Rodriguez","Babe Ruth","Barry Bonds",
-            "Cal Ripken","Carlos Beltran","Chipper Jones","Clayton Kershaw","Craig Biggio",
-            "Cy Young","David Ortiz","Derek Jeter","Frank Robinson","Frank Thomas",
-            "Fred McGriff","Freddie Freeman","Gerrit Cole","Giancarlo Stanton","Goose Gossage",
-            "Greg Maddux","Gunnar Henderson","Hank Aaron","Honus Wagner","Ichiro Suzuki",
-            "Ivan Rodriguez","Jackie Robinson","Jeff Bagwell","Jim Thome","Joe DiMaggio",
-            "Johnny Bench","Jose Altuve","Juan Soto","Justin Verlander","Ken Griffey",
-            "Lou Gehrig","Manny Ramirez","Mariano Rivera","Mark McGwire","Max Scherzer",
-            "Mickey Mantle","Miguel Cabrera","Mike Piazza","Mike Schmidt","Mike Trout",
-            "Mookie Betts","Nolan Ryan","Ozzie Smith","Pedro Martinez","Pete Rose",
-            "Randy Johnson","Reggie Jackson","Rich Gossage","Rickey Henderson","Roberto Clemente",
-            "Rod Carew","Roger Clemens","Ronald Acuna Jr.","Ryne Sandberg","Sandy Koufax",
-            "Shohei Ohtani","Stan Musial","Ted Williams","Tim Raines","Todd Helton",
-            "Tom Seaver","Trevor Hoffman","Ty Cobb","Vladimir Guerrero Jr.","Wade Boggs",
-            "Walter Johnson","Willie Mays","Willie McCovey","Yordan Alvarez","Yogi Berra"
-        ].sort();
-    }
-}
-
-// ─────────────────────────────────────────────
-// GOOGLE SHEETS QUESTION LOADING
-// ─────────────────────────────────────────────
-let loadedQuestions = {};   // { positionNumber: questionObject }
-
-async function loadFromSheets() {
-    if (!SHEET_URL || SHEET_URL === 'YOUR_GOOGLE_SHEET_CSV_URL_HERE') return false;
-    try {
-        const res = await fetch(SHEET_URL + '&t=' + Date.now());
-        if (!res.ok) return false;
-        const text = await res.text();
-        const rows = parseSheetCSV(text);
-
-        // Get all unique release dates available in the sheet
-        const availableDates = [...new Set(rows.map(r => r.release_date).filter(Boolean))].sort();
-        if (!availableDates.length) return false;
-
-        // Find the best release date:
-        // 1. Use current release date if questions exist for it
-        // 2. Otherwise use the most recent past date that has questions
-        // 3. If none in the past, use the next upcoming date
-        currentReleaseDate = getCurrentReleaseDate();
-        if (!availableDates.includes(currentReleaseDate)) {
-            const today = new Date().toISOString().split('T')[0];
-            const past  = availableDates.filter(d => d <= today);
-            const future = availableDates.filter(d => d > today);
-            currentReleaseDate = past.length
-                ? past[past.length - 1]   // most recent past date
-                : future[0];              // next upcoming date
-        }
-
-        const releaseRows = rows.filter(r => r.release_date === currentReleaseDate);
-        if (!releaseRows.length) return false;
-
-        releaseRows.forEach(row => {
-            const posKey = (row.position || '').toLowerCase().trim();
-            const posNum = POS_NAME_MAP[posKey];
-            if (posNum === 'tiebreaker') {
-                const q = buildSheetQuestion(row);
-                if (!questionsDB.tiebreaker) questionsDB.tiebreaker = [];
-                questionsDB.tiebreaker.push(q);
-            } else if (posNum >= 1 && posNum <= 9) {
-                loadedQuestions[posNum] = buildSheetQuestion(row);
-            }
-        });
-
-        return Object.keys(loadedQuestions).length > 0;
-    } catch(e) {
-        console.log('Google Sheets load failed:', e.message);
-        return false;
-    }
-}
-
-function parseSheetCSV(text) {
-    const lines   = text.trim().split('\n');
-    const headers = lines[0].split(',').map(h =>
-        h.trim().replace(/^"|"$/g,'').toLowerCase().replace(/\s+/g,'_'));
-    return lines.slice(1).map(line => {
-        const vals = splitCSVLine(line);
-        const obj  = {};
-        headers.forEach((h, i) => obj[h] = (vals[i] || '').trim().replace(/^"|"$/g,''));
-        return obj;
-    }).filter(r => r.release_date);
-}
-
-function splitCSVLine(line) {
-    const result = []; let cur = ''; let inQ = false;
-    for (const c of line) {
-        if (c === '"') { inQ = !inQ; }
-        else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
-        else { cur += c; }
-    }
-    result.push(cur);
-    return result;
-}
-
-function buildSheetQuestion(row) {
-    const type = (row.type || 'mc').toLowerCase();
-    if (type === 'ff') {
-        return {
-            type: 'ff',
-            position:    row.position,
-            difficulty:  (row.difficulty || 'medium').toLowerCase(),
-            question:    row.question,
-            answer:      row.answer,
-            explanation: row.explanation || ''
-        };
-    }
-    // MC — find which option matches the answer text
-    const opts = [row.option_a, row.option_b, row.option_c, row.option_d].filter(Boolean);
-    const ci   = opts.findIndex(o => normAnswer(o) === normAnswer(row.answer));
-    return {
-        type: 'mc',
-        position:    row.position,
-        difficulty:  row.difficulty || 'medium',
-        question:    row.question,
-        options:     opts,
-        correct:     ci >= 0 ? ci : 0,
-        explanation: row.explanation || ''
-    };
-}
-
-// ─────────────────────────────────────────────
-// GAME STATE
-// ─────────────────────────────────────────────
+// ─── Game State ────────────────────────────────────────────────────────────────
 let gameState = {
-    inning: 1, runs: 0, opponentRuns: 0, outs: 0,
-    completedPositions: 0, answeredPositions: 0,
+    inning: 1,
+    runs: 0,
+    opponentRuns: 0,
+    outs: 0,
+    completedPositions: 0,
+    answeredPositions: 0,
     bases: { first: false, second: false, third: false },
-    currentPosition: null, selectedAnswer: null,
-    streak: 0, highScore: 0,
-    timerEnabled: false, timerInterval: null, timeRemaining: 30,
+    currentPosition: null,
+    selectedAnswer: null,
+    streak: 0,
+    highScore: 0,
+    timerEnabled: false,
+    timerInterval: null,
+    timeRemaining: 30,
     soundEnabled: true,
-    currentGameCorrect: 0, currentGameIncorrect: 0,
-    currentQuestion: null, gameOver: false
+    currentGameCorrect: 0,
+    currentGameIncorrect: 0,
+    currentQuestion: null,
+    gameOver: false
 };
 
 let careerStats = {
-    gamesPlayed: 0, wins: 0, losses: 0,
-    totalCorrect: 0, totalIncorrect: 0,
-    bestStreak: 0, achievements: []
+    gamesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    totalCorrect: 0,
+    totalIncorrect: 0,
+    bestStreak: 0,
+    achievements: []
 };
 
 if (localStorage.getItem('mlbTriviaHighScore'))
@@ -509,23 +320,18 @@ if (localStorage.getItem('mlbTriviaHighScore'))
 if (localStorage.getItem('mlbCareerStats'))
     careerStats = JSON.parse(localStorage.getItem('mlbCareerStats'));
 
-// ─────────────────────────────────────────────
-// ACHIEVEMENTS
-// ─────────────────────────────────────────────
+// ─── Achievements ──────────────────────────────────────────────────────────────
 const achievements = {
     perfectGame: { name: 'Perfect Game',    description: 'Answer all 9 questions correctly', icon: '🏆' },
-    slugger:     { name: 'Slugger',          description: 'Hit 3 home runs in one game',       icon: '💪' },
-    hotStreak:   { name: 'Hot Streak',       description: 'Get 5 correct answers in a row',    icon: '🔥' },
-    comeback:    { name: 'Comeback Kid',     description: 'Win after being down by 3+ runs',   icon: '⭐' },
-    veteran:     { name: 'Veteran Player',   description: 'Play 10 games',                     icon: '🎖️' },
-    scholar:     { name: 'Baseball Scholar', description: 'Answer 100 questions correctly',    icon: '📚' }
+    slugger:     { name: 'Slugger',         description: 'Hit 3 home runs in one game',       icon: '💪' },
+    hotStreak:   { name: 'Hot Streak',      description: 'Get 5 correct answers in a row',    icon: '🔥' },
+    comeback:    { name: 'Comeback Kid',    description: 'Win after being down by 3+ runs',   icon: '⭐' },
+    veteran:     { name: 'Veteran Player',  description: 'Play 10 games',                     icon: '🎖️' },
+    scholar:     { name: 'Baseball Scholar',description: 'Answer 100 questions correctly',    icon: '📚' }
 };
 
-// ─────────────────────────────────────────────
-// AUDIO
-// ─────────────────────────────────────────────
+// ─── Audio ─────────────────────────────────────────────────────────────────────
 const audioCache = {};
-
 function preloadAudio() {
     const urls = {
         playball: 'https://cdn.jsdelivr.net/gh/KDog13k/BB@main/Play%20Ball.mp3',
@@ -533,127 +339,232 @@ function preloadAudio() {
         out:      'https://cdn.jsdelivr.net/gh/KDog13k/BB@main/Out.mp3'
     };
     for (const [key, url] of Object.entries(urls)) {
-        const a = new Audio();
-        a.preload = 'auto';
-        a.src = url;
-        audioCache[key] = a;
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = url;
+        audioCache[key] = audio;
     }
     audioCache['homerun'] = audioCache['hit'];
 }
 
-function playSound(type) {
+const playSound = (type) => {
     if (!gameState.soundEnabled) return;
     if (audioCache[type]) {
-        const a = audioCache[type].cloneNode();
-        a.volume = 0.5;
-        a.play().catch(() => {});
-        return;
+        const audio = audioCache[type].cloneNode();
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
     }
-    const urls = {
-        playball: 'https://cdn.jsdelivr.net/gh/KDog13k/BB@main/Play%20Ball.mp3',
-        hit:      'https://cdn.jsdelivr.net/gh/KDog13k/BB@main/Correct.mp3',
-        homerun:  'https://cdn.jsdelivr.net/gh/KDog13k/BB@main/Correct.mp3',
-        out:      'https://cdn.jsdelivr.net/gh/KDog13k/BB@main/Out.mp3'
-    };
-    if (!urls[type]) return;
-    const a = new Audio(urls[type]);
-    a.volume = 0.5;
-    a.play().catch(() => {});
-}
-
-// ─────────────────────────────────────────────
-// FALLBACK QUESTION BANK
-// ─────────────────────────────────────────────
-let questionsDB = {
-    easy: [
-        { position: 'Pitcher',    difficulty: 'easy', question: 'From 2008 to 2016, what Colorado Rockie led the team with 985 strikeouts?', options: ['Ubaldo Jimenez','Aaron Cook','Jeff Francis','Jorge De La Rosa'], correct: 3, explanation: 'Jorge De La Rosa was a consistent strikeout pitcher for the Rockies during this period.' },
-        { position: '1st Base',   difficulty: 'easy', question: 'Who has hit the most home runs as a Hawaiian native?', options: ['Mike Lum','Shane Victorino','Kurt Suzuki','Kolten Wong'], correct: 2, explanation: 'Kurt Suzuki, born in Wailuku, Hawaii, has been a productive power-hitting catcher.' },
-        { position: 'Left Field', difficulty: 'easy', question: 'Name the Texas Rangers all-time games played leader with 1823?', options: ['Michael Young','Elvis Andrus','Rafael Palmeiro','Ivan Rodriguez'], correct: 0, explanation: 'Michael Young spent 13 seasons with the Rangers.' }
-    ],
-    medium: [
-        { position: '2nd Base',     difficulty: 'medium', question: 'Who in 2010, at the age of 33, led the league with 68 steals?', options: ['Carl Crawford','Juan Pierre','Scott Podsednik','Coco Crisp'], correct: 1, explanation: 'Juan Pierre proved age is just a number, leading the league in steals at 33.' },
-        { position: '3rd Base',     difficulty: 'medium', question: 'In 2005, this sure-handed glove known for his stint in Minnesota was the Mets Opening Day 1B.', options: ['Jose Offerman','Matt Lawton','Brian Buchanan','Doug Mienkiewicz'], correct: 3, explanation: 'Doug Mientkiewicz was known for his exceptional defense with the Twins before joining the Mets.' },
-        { position: 'Center Field', difficulty: 'medium', question: 'From 2005 to 2008, what player hit exactly 40 home runs each season?', options: ['Albert Pujols','Adam Dunn','Richie Sexson','Paul Konerko'], correct: 1, explanation: 'Adam Dunn showed incredible consistency, hitting exactly 40 home runs in four consecutive seasons.' }
-    ],
-    hard: [
-        { position: 'Catcher',   difficulty: 'hard', question: 'Career Path: Arizona Diamondbacks (2003-07), Houston Astros (2008-09), Detroit Tigers (2010-13), New York Mets (2014)', options: ['Casey Fossum','Brandon Lyon','Jose Valverde','Octavio Dotel'], correct: 2, explanation: 'Jose Valverde was a dominant closer who saved 288 games in his career.' },
-        { position: 'Shortstop', difficulty: 'hard', question: 'In 2001, this player finished 7th in MVP voting despite 49 homers and 125 RBIs.', options: ['Shawn Green','Alex Rodriguez','Jeff Bagwell','Luis Gonzalez'], correct: 0, explanation: 'Shawn Green had one of the best offensive seasons ever in 2001 with the Dodgers.' }
-    ],
-    nightmare: [
-        { position: 'Right Field', difficulty: 'nightmare', question: 'What pitcher in 2008 threw an MLB-record 39 scoreless innings to start his MLB career?', options: ['Joe Kelly','Brad Ziegler','Aaron Loup','Sean Doolittle'], correct: 1, explanation: 'Brad Ziegler set this incredible record as a submarine-style reliever for the Oakland Athletics.' }
-    ],
-    tiebreaker: [
-        { position: 'Tiebreaker', difficulty: 'tiebreaker', question: 'Who is the only active player with over 300 home runs and 1,300 walks?', options: ['Carlos Santana','Andrew McCutchen','Freddie Freeman','Paul Goldschmidt'], correct: 0, explanation: 'Carlos Santana has shown exceptional plate discipline throughout his career.' }
-    ]
 };
 
-// ─────────────────────────────────────────────
-// LOAD QUESTIONS (Sheets first, then GitHub CSV, then hardcoded)
-// ─────────────────────────────────────────────
-async function loadQuestions() {
-    // Step 1 — Google Sheets (primary, release-scheduled)
-    const sheetsOk = await loadFromSheets();
-    if (sheetsOk) {
-        console.log(`Google Sheets loaded for release: ${currentReleaseDate}`);
-        updateReleaseBadge();
-        return;
-    }
+// ─── CSV Loading & Date-Based Question Selection ────────────────────────────────
+// questionsByDate: { "2026-06-02": { "Pitcher": {...}, "Catcher": {...}, ..., "Tiebreaker": {...} } }
+let questionsByDate = {};
+let sortedDates = [];
+let todaysQuestionSet = null;   // resolved set of questions for the active date
+let activeDateUsed = null;      // which date's set actually got used (for display/debug)
 
-    // Step 2 — GitHub CSV fallback
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/KDog13k/mlb/refs/heads/main/MLB%20Trivia%202.csv');
-        if (!response.ok) throw new Error('CSV fetch failed');
-        const csvData = await response.text();
-        const rows = csvData.split('\n').slice(1);
-        const newDB = { easy: [], medium: [], hard: [], nightmare: [], tiebreaker: [] };
-        rows.forEach(row => {
-            if (!row.trim()) return;
-            const columns = [];
-            let current = '', inQuotes = false;
-            for (let i = 0; i < row.length; i++) {
-                const char = row[i];
-                if (char === '"') { inQuotes = !inQuotes; }
-                else if (char === ',' && !inQuotes) { columns.push(current.trim()); current = ''; }
-                else { current += char; }
-            }
-            columns.push(current.trim());
-            if (columns.length >= 8) {
-                const difficulty = columns[1].toLowerCase();
-                if (newDB[difficulty]) {
-                    newDB[difficulty].push({
-                        type: 'mc',
-                        position:    columns[0],
-                        difficulty,
-                        question:    columns[2].replace(/^"|"$/g, ''),
-                        options:     [columns[3],columns[4],columns[5],columns[6]].map(o => o.replace(/^"|"$/g, '')),
-                        correct:     parseInt(columns[7]) - 1,
-                        explanation: columns[8] ? columns[8].replace(/^"|"$/g, '') : 'Great job!'
-                    });
-                }
-            }
-        });
-        if (Object.values(newDB).some(arr => arr.length > 0)) {
-            questionsDB = newDB;
-            console.log('GitHub CSV questions loaded');
-        }
-    } catch(e) {
-        console.log('Using embedded questions.');
+const positionNames = {
+    '1':'Pitcher','2':'Catcher','3':'1st Base','4':'2nd Base','5':'3rd Base',
+    '6':'Shortstop','7':'Left Field','8':'Center Field','9':'Right Field'
+};
+
+// Simple embedded fallback in case the CSV fails to load entirely
+const fallbackQuestion = {
+    position: 'Pitcher', difficulty: 'easy', type: 'mc',
+    question: 'From 2008 to 2016, what Colorado Rockie led the team with 985 strikeouts?',
+    options: ['Ubaldo Jimenez','Aaron Cook','Jeff Francis','Jorge De La Rosa'],
+    correctIndex: 3,
+    explanation: 'Jorge De La Rosa was a consistent strikeout pitcher for the Rockies during this period.'
+};
+
+function parseCsvLine(line) {
+    const columns = [];
+    let current = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') { inQuotes = !inQuotes; }
+        else if (char === ',' && !inQuotes) { columns.push(current.trim()); current = ''; }
+        else { current += char; }
     }
-    updateReleaseBadge();
+    columns.push(current.trim());
+    return columns.map(c => c.replace(/^"|"$/g, ''));
 }
 
-// ─────────────────────────────────────────────
-// GAME START
-// ─────────────────────────────────────────────
-function startGame() {
-    // One play per release window
-    const lastRelease = localStorage.getItem('mlbTriviaLastRelease');
-    currentReleaseDate = currentReleaseDate || getCurrentReleaseDate();
-    if (lastRelease && lastRelease === currentReleaseDate) {
-        alert(`You've already played this release!\nCome back ${getNextRelease()} for new questions.`);
+function stripAccents(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Used for STRICT equality checks (answer validation) - collapses all whitespace
+// so "A.J. Ellis" and "A. J. Ellis" are treated the same.
+function normalizeAnswer(str) {
+    return stripAccents(str)
+        .toLowerCase()
+        .trim()
+        .replace(/[.,]/g, '')
+        .replace(/\s+/g, '');
+}
+
+// ─── Player Name Autocomplete ───────────────────────────────────────────────────
+let playerNames = [];
+
+async function loadPlayerNames() {
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/KDog13k/Baseball/main/mlb_player_names.json');
+        if (!response.ok) throw new Error('Player names fetch failed');
+        const data = await response.json();
+        playerNames = data.names || [];
+        console.log('Loaded', playerNames.length, 'player names for autocomplete.');
+    } catch (error) {
+        console.log('Player name autocomplete unavailable:', error);
+        playerNames = [];
+    }
+}
+
+function showSuggestions(query) {
+    const box = document.getElementById('ffSuggestions');
+    const q = query.trim().toLowerCase();
+    if (q.length < 2 || playerNames.length === 0) {
+        box.classList.remove('open');
+        box.innerHTML = '';
         return;
     }
-    if (Object.values(questionsDB).every(arr => arr.length === 0) && Object.keys(loadedQuestions).length === 0) {
+    const qNorm = stripAccents(q);
+    const matches = playerNames
+        .filter(n => stripAccents(n.toLowerCase()).includes(qNorm))
+        .slice(0, 8);
+
+    if (matches.length === 0) {
+        box.classList.remove('open');
+        box.innerHTML = '';
+        return;
+    }
+
+    box.innerHTML = matches.map(name =>
+        `<div class="ff-suggestion-item">${name}</div>`
+    ).join('');
+    box.querySelectorAll('.ff-suggestion-item').forEach((item, i) => {
+        item.onclick = () => {
+            document.getElementById('ffAnswerInput').value = matches[i];
+            box.classList.remove('open');
+            box.innerHTML = '';
+            document.getElementById('submitAnswer').disabled = false;
+        };
+    });
+    box.classList.add('open');
+}
+
+// ─── Schedule Helpers ────────────────────────────────────────────────────────────
+function getNextReleaseDateLabel() {
+    if (sortedDates.length === 0) return 'soon';
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const future = sortedDates.filter(d => d > todayStr);
+    if (future.length === 0) return 'soon';
+    const nextDate = new Date(future[0] + 'T00:00:00');
+    return nextDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+async function loadQuestions() {
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/KDog13k/Baseball/main/MLB%20Trivia%20Questions%20-%20MLB%20Trivia%20Questions.csv');
+        if (!response.ok) throw new Error('CSV fetch failed');
+        const csvData = await response.text();
+        const lines = csvData.split('\n').filter(l => l.trim());
+        const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().trim());
+
+        const idx = {
+            date: headers.indexOf('release_date'),
+            position: headers.indexOf('position'),
+            difficulty: headers.indexOf('difficulty'),
+            type: headers.indexOf('type'),
+            question: headers.indexOf('question'),
+            answer: headers.indexOf('answer'),
+            optA: headers.indexOf('option_a'),
+            optB: headers.indexOf('option_b'),
+            optC: headers.indexOf('option_c'),
+            optD: headers.indexOf('option_d'),
+            explanation: headers.indexOf('explanation')
+        };
+
+        const newByDate = {};
+
+        for (let i = 1; i < lines.length; i++) {
+            const cols = parseCsvLine(lines[i]);
+            if (cols.length < headers.length) continue;
+
+            const releaseDate = cols[idx.date];
+            const position = cols[idx.position];
+            const difficulty = (cols[idx.difficulty] || '').toLowerCase();
+            const type = (cols[idx.type] || 'mc').toLowerCase();
+            const questionText = cols[idx.question];
+            const rawAnswer = cols[idx.answer];
+            const explanation = cols[idx.explanation] || 'Great job!';
+
+            if (!releaseDate || !position || !questionText) continue; // skip undated spare pool for now
+
+            let qObj = { position, difficulty, type, question: questionText, explanation, rawAnswer };
+
+            if (type === 'ff') {
+                // Fill-in-the-blank: pipe-separated list of acceptable answers
+                qObj.acceptableAnswers = rawAnswer.split('|').map(a => normalizeAnswer(a));
+                qObj.answer = rawAnswer; // for display
+            } else {
+                // Multiple choice: options + find which one matches the answer text
+                const opts = [cols[idx.optA], cols[idx.optB], cols[idx.optC], cols[idx.optD]]
+                    .filter(o => o && o.trim());
+                const correctIndex = opts.findIndex(o => o.trim() === rawAnswer.trim());
+                qObj.options = opts;
+                qObj.correctIndex = correctIndex >= 0 ? correctIndex : 0;
+            }
+
+            if (!newByDate[releaseDate]) newByDate[releaseDate] = {};
+            newByDate[releaseDate][position] = qObj;
+        }
+
+        if (Object.keys(newByDate).length > 0) {
+            questionsByDate = newByDate;
+            sortedDates = Object.keys(questionsByDate).sort();
+            console.log('Loaded', sortedDates.length, 'days of questions from CSV.');
+        }
+    } catch (error) {
+        console.log('CSV load failed, will use fallback question.', error);
+    }
+
+    resolveTodaysQuestionSet();
+}
+
+function resolveTodaysQuestionSet() {
+    if (sortedDates.length === 0) {
+        todaysQuestionSet = null;
+        return;
+    }
+    const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD, local calendar date
+
+    if (questionsByDate[todayStr]) {
+        activeDateUsed = todayStr;
+    } else {
+        // Fallback: most recent PAST release date; if none exists yet, use earliest available
+        const pastDates = sortedDates.filter(d => d <= todayStr);
+        activeDateUsed = pastDates.length > 0 ? pastDates[pastDates.length - 1] : sortedDates[0];
+    }
+    todaysQuestionSet = questionsByDate[activeDateUsed];
+    console.log('Using question set for date:', activeDateUsed);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadQuestions();
+    loadPlayerNames();
+    preloadAudio();
+});
+
+// ─── Game Start ────────────────────────────────────────────────────────────────
+function startGame() {
+    const lastPlayed = localStorage.getItem('mlbTriviaLastPlayed');
+    const today = new Date().toDateString();
+    if (lastPlayed === today) {
+        alert(`You've already played today! Come back ${getNextReleaseDateLabel()} for the next set of questions.`);
+        return;
+    }
+    if (!todaysQuestionSet) {
         alert('Questions are still loading. Please wait a moment and try again.');
         return;
     }
@@ -666,14 +577,21 @@ function startGame() {
 }
 
 function resetGameState() {
-    gameState.inning = 1; gameState.runs = 0; gameState.opponentRuns = 0;
-    gameState.outs = 0; gameState.completedPositions = 0; gameState.answeredPositions = 0;
+    gameState.inning = 1;
+    gameState.runs = 0;
+    gameState.opponentRuns = 0;
+    gameState.outs = 0;
+    gameState.completedPositions = 0;
+    gameState.answeredPositions = 0;
     gameState.bases = { first: false, second: false, third: false };
-    gameState.currentPosition = null; gameState.selectedAnswer = null;
-    gameState.streak = 0; gameState.currentGameCorrect = 0;
-    gameState.currentGameIncorrect = 0; gameState.currentQuestion = null; gameState.gameOver = false;
+    gameState.currentPosition = null;
+    gameState.selectedAnswer = null;
+    gameState.streak = 0;
+    gameState.currentGameCorrect = 0;
+    gameState.currentGameIncorrect = 0;
+    gameState.currentQuestion = null;
+    gameState.gameOver = false;
 
-    const positionNames = { '1':'Pitcher','2':'Catcher','3':'1st Base','4':'2nd Base','5':'3rd Base','6':'Shortstop','7':'Left Field','8':'Center Field','9':'Right Field' };
     document.querySelectorAll('.position').forEach(pos => {
         pos.classList.remove('completed', 'incorrect');
         delete pos.dataset.attempted;
@@ -682,206 +600,110 @@ function resetGameState() {
     });
 }
 
-// ─────────────────────────────────────────────
-// DISPLAY
-// ─────────────────────────────────────────────
+// ─── Display ───────────────────────────────────────────────────────────────────
 function updateDisplay() {
-    document.getElementById('inning').textContent       = gameState.inning;
-    document.getElementById('runs').textContent         = gameState.runs;
+    document.getElementById('inning').textContent = gameState.inning;
+    document.getElementById('runs').textContent = gameState.runs;
     document.getElementById('opponentRuns').textContent = gameState.opponentRuns;
-    document.getElementById('outs').textContent         = gameState.outs;
-    document.getElementById('completed').textContent    = gameState.answeredPositions;
-    document.getElementById('streak').textContent       = gameState.streak;
-    document.getElementById('highScore').textContent    = gameState.highScore;
+    document.getElementById('outs').textContent = gameState.outs;
+    document.getElementById('completed').textContent = gameState.answeredPositions;
+    document.getElementById('streak').textContent = gameState.streak;
+    document.getElementById('highScore').textContent = gameState.highScore;
+
     ['first','second','third'].forEach((base, i) => {
         const el = document.getElementById(`base${i+1}`);
         const labels = ['1st','2nd','3rd'];
         el.textContent = `${labels[i]}: ${gameState.bases[base] ? 'Runner' : 'Empty'}`;
-        el.className   = `base-status ${gameState.bases[base] ? 'base-occupied' : ''}`;
+        el.className = `base-status ${gameState.bases[base] ? 'base-occupied' : ''}`;
     });
 }
 
-// ─────────────────────────────────────────────
-// OPEN QUESTION
-// ─────────────────────────────────────────────
+// ─── Open Question ─────────────────────────────────────────────────────────────
 function openQuestion(position, positionName) {
     const posEl = document.querySelector(`[data-position="${position}"]`);
     if (posEl.classList.contains('completed') || posEl.classList.contains('incorrect')) return;
     if (gameState.gameOver) return;
+
     gameState.currentPosition = position;
 
-    // Use Google Sheets question if available for this position
-    if (loadedQuestions[position]) {
-        displayQuestion(loadedQuestions[position], positionName, position);
-        return;
-    }
+    let question = todaysQuestionSet && todaysQuestionSet[positionName]
+        ? todaysQuestionSet[positionName]
+        : { ...fallbackQuestion, position: positionName };
 
-    // Fallback: pick from questionsDB by position name
-    let questions = [];
-    for (const diff in questionsDB) {
-        if (diff !== 'tiebreaker') {
-            questions = questions.concat(
-                questionsDB[diff].filter(q => q.position.toLowerCase() === positionName.toLowerCase())
-            );
-        }
-    }
-    if (questions.length === 0) {
-        alert(`No questions found for: ${positionName}`);
-        return;
-    }
-    displayQuestion(questions[Math.floor(Math.random() * questions.length)], positionName, position);
+    displayQuestion(question, positionName, position);
 }
 
-// ─────────────────────────────────────────────
-// DISPLAY QUESTION
-// ─────────────────────────────────────────────
+// ─── Display Question ──────────────────────────────────────────────────────────
 function displayQuestion(question, positionName, position) {
     document.getElementById('positionTitle').textContent = positionName
-        ? positionName
+        ? `${positionName} (Position ${position})`
         : '⚡ TIEBREAKER QUESTION';
-    document.getElementById('questionText').textContent  = question.question;
+    document.getElementById('questionText').textContent = question.question;
     document.getElementById('difficultyBadge').textContent = question.difficulty.toUpperCase();
-    document.getElementById('difficultyBadge').className   = `difficulty-badge ${question.difficulty}`;
+    document.getElementById('difficultyBadge').className = `difficulty-badge ${question.difficulty}`;
 
-    gameState.selectedAnswer = null;
-    gameState.currentQuestion = question;
-    document.getElementById('submitAnswer').disabled     = true;
-    document.getElementById('submitAnswer').style.display = 'inline-block';
-    document.getElementById('continueBtn').style.display  = 'none';
-    document.getElementById('continueBtn').onclick        = continueGame;
-    document.getElementById('continueBtn').textContent    = 'Continue';
-    document.getElementById('resultMessage').style.display = 'none';
+    const optionsContainer = document.getElementById('answerOptions');
+    const ffContainer = document.getElementById('ffAnswerContainer');
+    const ffInput = document.getElementById('ffAnswerInput');
 
-    // Clean up any previous FF reveals
-    document.querySelectorAll('.correct-reveal').forEach(el => el.remove());
+    optionsContainer.innerHTML = '';
+    ffInput.value = '';
 
-    const qType = (question.type || 'mc');
-    if (qType === 'ff') {
-        document.getElementById('answerOptions').style.display = 'none';
-        document.getElementById('ffSection').style.display     = 'block';
-        renderFF();
+    if (question.type === 'ff') {
+        optionsContainer.style.display = 'none';
+        ffContainer.style.display = 'block';
+        document.getElementById('ffAnswerInput').disabled = false;
+        document.getElementById('ffSuggestions').classList.remove('open');
+        document.getElementById('ffSuggestions').innerHTML = '';
+        ffInput.oninput = () => {
+            document.getElementById('submitAnswer').disabled = ffInput.value.trim().length === 0;
+            showSuggestions(ffInput.value);
+        };
+        ffInput.onblur = () => {
+            // Slight delay so a suggestion click registers before the dropdown closes
+            setTimeout(() => document.getElementById('ffSuggestions').classList.remove('open'), 150);
+        };
+        setTimeout(() => ffInput.focus(), 100);
     } else {
-        document.getElementById('answerOptions').style.display = 'grid';
-        document.getElementById('ffSection').style.display     = 'none';
-        document.getElementById('answerOptions').innerHTML = '';
+        ffContainer.style.display = 'none';
+        optionsContainer.style.display = 'grid';
         question.options.forEach((option, index) => {
             const div = document.createElement('div');
             div.className = 'answer-option';
             div.textContent = option;
             div.onclick = () => selectAnswer(index, div);
-            document.getElementById('answerOptions').appendChild(div);
+            optionsContainer.appendChild(div);
         });
     }
 
+    gameState.selectedAnswer = null;
+    gameState.currentQuestion = question;
+    document.getElementById('submitAnswer').disabled = true;
+    document.getElementById('submitAnswer').style.display = 'inline-block';
+    document.getElementById('continueBtn').style.display = 'none';
+    document.getElementById('resultMessage').style.display = 'none';
+
+    document.getElementById('continueBtn').onclick = continueGame;
+    document.getElementById('continueBtn').textContent = 'Continue';
+
     document.getElementById('questionModal').style.display = 'block';
+
     if (gameState.timerEnabled) startTimer();
 }
 
-// ─────────────────────────────────────────────
-// FREE-FORM HELPERS
-// ─────────────────────────────────────────────
-function renderFF() {
-    const inp = document.getElementById('ffInput');
-    inp.value = ''; inp.className = 'ff-input'; inp.disabled = false;
-    document.getElementById('acList').style.display = 'none';
-    document.getElementById('submitAnswer').disabled = true;
-    acIdx = -1;
-}
-
-function onFFInput() {
-    const val  = document.getElementById('ffInput').value.trim();
-    const list = document.getElementById('acList');
-    document.getElementById('submitAnswer').disabled = val.length < 2;
-    acIdx = -1;
-    if (val.length < 2) { list.style.display = 'none'; return; }
-
-    const q = val.toLowerCase();
-    const matches = playerNames.filter(n => n.toLowerCase().includes(q)).slice(0, 10);
-    if (!matches.length) { list.style.display = 'none'; return; }
-
-    list.innerHTML = '';
-    matches.forEach(m => {
-        const d = document.createElement('div');
-        d.className   = 'ac-item';
-        d.textContent = m;
-        // mousedown fires before blur — prevents input losing focus before pick
-        d.onmousedown = e => { e.preventDefault(); pickAC(m); };
-        list.appendChild(d);
-    });
-    list.style.display = 'block';
-}
-
-function onFFKey(e) {
-    const list  = document.getElementById('acList');
-    const items = list.querySelectorAll('.ac-item');
-    if (!items.length) return;
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        acIdx = Math.min(acIdx + 1, items.length - 1);
-        items.forEach((it, i) => it.classList.toggle('active', i === acIdx));
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        acIdx = Math.max(acIdx - 1, -1);
-        items.forEach((it, i) => it.classList.toggle('active', i === acIdx));
-    } else if (e.key === 'Enter' && acIdx >= 0) {
-        e.preventDefault();
-        pickAC(items[acIdx].textContent);
-    } else if (e.key === 'Escape') {
-        list.style.display = 'none';
-    }
-}
-
-function pickAC(name) {
-    document.getElementById('ffInput').value = name;
-    document.getElementById('acList').style.display = 'none';
-    document.getElementById('submitAnswer').disabled = false;
-    // Focus back to input so user sees their selection
-    document.getElementById('ffInput').focus();
-}
-
-function normAnswer(s) {
-    return (s || '').normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\./g, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .toLowerCase();
-}
-
-function checkFFAnswer() {
-    const given     = document.getElementById('ffInput').value.trim();
-    const answers   = (gameState.currentQuestion.answer || '').split('|');
-    const isCorrect = answers.some(a => normAnswer(given) === normAnswer(a));
-    const inp       = document.getElementById('ffInput');
-    inp.className = 'ff-input ' + (isCorrect ? 'correct-input' : 'incorrect-input');
-    inp.disabled  = true;
-    document.getElementById('acList').style.display = 'none';
-    if (!isCorrect) {
-        const rev = document.createElement('div');
-        rev.className   = 'correct-reveal';
-        // Show all acceptable answers if there are multiple
-        const display = answers.length > 1
-            ? `✓ Accepted answers: ${answers.join(' or ')}`
-            : `✓ Correct answer: ${answers[0]}`;
-        rev.textContent = display;
-        document.getElementById('ffSection').appendChild(rev);
-    }
-    return isCorrect;
-}
-
-// ─────────────────────────────────────────────
-// TIEBREAKER
-// ─────────────────────────────────────────────
+// ─── Tiebreaker ────────────────────────────────────────────────────────────────
 function showTiebreaker() {
-    if (questionsDB.tiebreaker.length === 0) { endGame(); return; }
-    const question = questionsDB.tiebreaker[Math.floor(Math.random() * questionsDB.tiebreaker.length)];
+    const question = todaysQuestionSet && todaysQuestionSet['Tiebreaker']
+        ? todaysQuestionSet['Tiebreaker']
+        : { position: 'Tiebreaker', difficulty: 'tiebreaker', type: 'mc',
+            question: 'Who is the only active player with over 300 home runs and 1,300 walks?',
+            options: ['Carlos Santana','Andrew McCutchen','Freddie Freeman','Paul Goldschmidt'],
+            correctIndex: 0, explanation: 'Carlos Santana has shown exceptional plate discipline throughout his career.' };
     gameState.currentPosition = 'tiebreaker';
     displayQuestion(question, null, null);
 }
 
-// ─────────────────────────────────────────────
-// TIMER
-// ─────────────────────────────────────────────
+// ─── Timer ─────────────────────────────────────────────────────────────────────
 function startTimer() {
     gameState.timeRemaining = 30;
     const timerEl = document.getElementById('timer');
@@ -901,9 +723,7 @@ function startTimer() {
     }, 1000);
 }
 
-// ─────────────────────────────────────────────
-// SELECT ANSWER (MC)
-// ─────────────────────────────────────────────
+// ─── Answer Selection (multiple choice) ─────────────────────────────────────────
 function selectAnswer(index, element) {
     document.querySelectorAll('.answer-option').forEach(o => o.classList.remove('selected'));
     element.classList.add('selected');
@@ -911,34 +731,35 @@ function selectAnswer(index, element) {
     document.getElementById('submitAnswer').disabled = false;
 }
 
-// ─────────────────────────────────────────────
-// SUBMIT ANSWER
-// ─────────────────────────────────────────────
+// ─── Submit Answer ─────────────────────────────────────────────────────────────
 function submitAnswer() {
     clearInterval(gameState.timerInterval);
     document.getElementById('timer').style.display = 'none';
 
-    const qType = (gameState.currentQuestion.type || 'mc');
-    let isCorrect;
+    const q = gameState.currentQuestion;
+    let isCorrect = false;
 
-    if (qType === 'ff') {
-        isCorrect = checkFFAnswer();
+    if (q.type === 'ff') {
+        const userInput = normalizeAnswer(document.getElementById('ffAnswerInput').value || '');
+        isCorrect = q.acceptableAnswers.includes(userInput);
+        // Show what the correct answer was, regardless of right/wrong
+        document.getElementById('ffAnswerInput').disabled = true;
     } else {
-        isCorrect = gameState.selectedAnswer === gameState.currentQuestion.correct;
+        isCorrect = gameState.selectedAnswer === q.correctIndex;
         document.querySelectorAll('.answer-option').forEach((opt, i) => {
-            if (i === gameState.currentQuestion.correct) opt.classList.add('correct');
+            if (i === q.correctIndex) opt.classList.add('correct');
             else if (i === gameState.selectedAnswer && !isCorrect) opt.classList.add('incorrect');
             opt.onclick = null;
         });
     }
 
-    // Tiebreaker path
+    const difficulty = q.difficulty.toLowerCase();
+
     if (gameState.currentPosition === 'tiebreaker') {
-        handleTiebreakerResult(isCorrect);
+        handleTiebreakerResult(isCorrect, q);
         return;
     }
 
-    // Normal path
     const posEl = document.querySelector(`[data-position="${gameState.currentPosition}"]`);
     posEl.setAttribute('onclick', '');
 
@@ -951,28 +772,40 @@ function submitAnswer() {
         careerStats.totalCorrect++;
         posEl.classList.add('completed');
 
-        switch (gameState.currentQuestion.difficulty) {
+        switch (difficulty) {
             case 'easy':
                 playSound('hit');
                 resultText = 'SINGLE! Runner on first.';
-                advanceRunners(1); gameState.bases.first = true; break;
+                advanceRunners(1);
+                gameState.bases.first = true;
+                break;
             case 'medium':
                 playSound('hit');
                 resultText = 'DOUBLE! Runner on second.';
-                advanceRunners(2); gameState.bases.second = true; break;
+                advanceRunners(2);
+                gameState.bases.second = true;
+                break;
             case 'hard':
                 playSound('hit');
                 resultText = 'TRIPLE! Runner on third.';
-                advanceRunners(3); gameState.bases.third = true; break;
+                advanceRunners(3);
+                gameState.bases.third = true;
+                break;
             case 'nightmare':
                 playSound('homerun');
                 resultText = 'HOME RUN! All runners score!';
                 gameState.runs += countRunnersOnBase() + 1;
-                clearBases(); break;
+                clearBases();
+                break;
+            default:
+                playSound('hit');
+                resultText = 'Correct!';
         }
+
         gameState.streak++;
         if (gameState.streak > careerStats.bestStreak) careerStats.bestStreak = gameState.streak;
         if (gameState.streak >= 5 && !careerStats.achievements.includes('hotStreak')) unlockAchievement('hotStreak');
+
     } else {
         gameState.answeredPositions++;
         gameState.currentGameIncorrect++;
@@ -985,12 +818,18 @@ function submitAnswer() {
         resultText = gameState.timeRemaining <= 0 ? 'OUT! Time ran out!' : 'OUT! Wrong answer.';
         if (gameState.outs >= 3) {
             resultText += ' Three outs! New inning.';
-            gameState.outs = 0; gameState.inning++; clearBases();
+            gameState.outs = 0;
+            gameState.inning++;
+            clearBases();
         }
     }
 
-    if (gameState.currentQuestion.explanation) {
-        resultText += `\n\n📖 ${gameState.currentQuestion.explanation}`;
+    // Show correct answer for fill-in-the-blank, plus explanation
+    if (q.type === 'ff') {
+        resultText += `\n\nCorrect answer: ${q.answer}`;
+    }
+    if (q.explanation) {
+        resultText += `\n\n📖 ${q.explanation}`;
     }
 
     const msgEl = document.getElementById('resultMessage');
@@ -998,91 +837,102 @@ function submitAnswer() {
     msgEl.textContent = resultText;
     msgEl.style.backgroundColor = isCorrect ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)';
     msgEl.style.display = 'block';
+
     document.getElementById('submitAnswer').style.display = 'none';
-    document.getElementById('continueBtn').style.display  = 'inline-block';
+    document.getElementById('continueBtn').style.display = 'inline-block';
 
     updateDisplay();
     saveCareerStats();
 }
 
-// ─────────────────────────────────────────────
-// TIEBREAKER RESULT
-// ─────────────────────────────────────────────
-function handleTiebreakerResult(isCorrect) {
+// ─── Tiebreaker Result ─────────────────────────────────────────────────────────
+function handleTiebreakerResult(isCorrect, q) {
+    let msg = '';
     if (isCorrect) {
         gameState.runs++;
         gameState.currentGameCorrect++;
         careerStats.totalCorrect++;
-        document.getElementById('resultMessage').textContent = 'TIEBREAKER WIN! You score the winning run!';
-        document.getElementById('resultMessage').style.backgroundColor = 'rgba(46,204,113,0.3)';
+        msg = 'TIEBREAKER WIN! You score the winning run!';
     } else {
         gameState.opponentRuns++;
         gameState.currentGameIncorrect++;
         careerStats.totalIncorrect++;
-        document.getElementById('resultMessage').textContent = 'Opponent scores! You lose the tiebreaker.';
-        document.getElementById('resultMessage').style.backgroundColor = 'rgba(231,76,60,0.3)';
+        msg = 'Opponent scores! You lose the tiebreaker.';
     }
-    document.getElementById('resultMessage').style.display = 'block';
-    document.getElementById('submitAnswer').style.display  = 'none';
+    if (q.type === 'ff') {
+        msg += `\n\nCorrect answer: ${q.answer}`;
+    }
+    const msgEl = document.getElementById('resultMessage');
+    msgEl.style.whiteSpace = 'pre-wrap';
+    msgEl.textContent = msg;
+    msgEl.style.backgroundColor = isCorrect ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)';
+    msgEl.style.display = 'block';
+    document.getElementById('submitAnswer').style.display = 'none';
+
     const contBtn = document.getElementById('continueBtn');
-    contBtn.textContent   = 'View Final Score';
+    contBtn.textContent = 'View Final Score';
     contBtn.style.display = 'inline-block';
     contBtn.onclick = () => { closeModal(); endGame(); };
+
     updateDisplay();
     saveCareerStats();
 }
 
-function continueGame() { closeModal(); checkGameOver(); }
+// ─── Continue Game ─────────────────────────────────────────────────────────────
+function continueGame() {
+    closeModal();
+    checkGameOver();
+}
 
 function checkGameOver() {
     if (gameState.gameOver) return;
     if (gameState.answeredPositions >= 9) {
         setTimeout(() => {
-            gameState.runs === gameState.opponentRuns ? showTiebreaker() : endGame();
+            if (gameState.runs === gameState.opponentRuns) {
+                showTiebreaker();
+            } else {
+                endGame();
+            }
         }, 400);
     }
 }
 
-// ─────────────────────────────────────────────
-// BASE RUNNING
-// ─────────────────────────────────────────────
+// ─── Base Helpers ──────────────────────────────────────────────────────────────
 function advanceRunners(bases) {
     let scored = 0;
     if (gameState.bases.third  && bases >= 1) { scored++; gameState.bases.third  = false; }
     if (gameState.bases.second && bases >= 2) { scored++; gameState.bases.second = false; }
     if (gameState.bases.first  && bases >= 3) { scored++; gameState.bases.first  = false; }
+
     if (bases < 3) {
         if (gameState.bases.second && bases >= 1) { gameState.bases.third  = true; gameState.bases.second = false; }
         if (gameState.bases.first  && bases >= 2) { gameState.bases.third  = true; gameState.bases.first  = false; }
-        else if (gameState.bases.first && bases >= 1) { gameState.bases.second = true; gameState.bases.first = false; }
+        else if (gameState.bases.first && bases >= 1) { gameState.bases.second = true; gameState.bases.first  = false; }
     }
     gameState.runs += scored;
 }
+
 function countRunnersOnBase() {
     return [gameState.bases.first, gameState.bases.second, gameState.bases.third].filter(Boolean).length;
 }
-function clearBases() { gameState.bases = { first: false, second: false, third: false }; }
 
-// ─────────────────────────────────────────────
-// CLOSE MODAL
-// ─────────────────────────────────────────────
+function clearBases() {
+    gameState.bases = { first: false, second: false, third: false };
+}
+
+// ─── Close Modal ───────────────────────────────────────────────────────────────
 function closeModal() {
     document.getElementById('questionModal').style.display = 'none';
     clearInterval(gameState.timerInterval);
     document.getElementById('timer').style.display = 'none';
-    document.querySelectorAll('.correct-reveal').forEach(el => el.remove());
 }
 
-// ─────────────────────────────────────────────
-// END GAME
-// ─────────────────────────────────────────────
+// ─── End Game ──────────────────────────────────────────────────────────────────
 function endGame() {
     if (gameState.gameOver) return;
     gameState.gameOver = true;
 
-    currentReleaseDate = currentReleaseDate || getCurrentReleaseDate();
-    localStorage.setItem('mlbTriviaLastRelease', currentReleaseDate);
-    localStorage.setItem('mlbTriviaLastPlayed',  new Date().toDateString());
+    localStorage.setItem('mlbTriviaLastPlayed', new Date().toDateString());
 
     careerStats.gamesPlayed++;
     const won = gameState.runs > gameState.opponentRuns;
@@ -1098,20 +948,20 @@ function endGame() {
     }
     saveCareerStats();
 
-    document.getElementById('gameScreen').style.display    = 'none';
+    document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('gameOverScreen').style.display = 'block';
 
     const netScore = gameState.runs - gameState.opponentRuns;
     let performance = '';
-    if      (netScore >= 8)  performance = 'HALL OF FAME! You dominated!';
-    else if (netScore >= 6)  performance = 'MVP Performance! Outstanding!';
-    else if (netScore >= 4)  performance = 'All-Star Game! Great job!';
-    else if (netScore >= 2)  performance = 'Solid Performance! Good baseball IQ!';
-    else if (netScore >= 0)  performance = won ? 'You Win! Great job!' : "Tie game — you survived!";
-    else                     performance = 'You Lose — Better luck next time!';
+    if      (netScore >= 8) performance = 'HALL OF FAME! You dominated!';
+    else if (netScore >= 6) performance = 'MVP Performance! Outstanding!';
+    else if (netScore >= 4) performance = 'All-Star Game! Great job!';
+    else if (netScore >= 2) performance = 'Solid Performance! Good baseball IQ!';
+    else if (netScore >= 0) performance = won ? 'You Win! Great job!' : "Tie game — you survived!";
+    else                    performance = 'You Lose — Better luck next time!';
 
     const battingAvg = Math.round((gameState.currentGameCorrect / 9) * 1000).toString().padStart(3, '0');
-    const isNewHS    = gameState.runs === gameState.highScore && gameState.runs > 0;
+    const isNewHS = gameState.runs === gameState.highScore && gameState.runs > 0;
 
     document.getElementById('finalStats').innerHTML = `
         ${isNewHS ? '<h3 style="color:#ffd700;font-size:2rem;margin-bottom:20px;">🏆 NEW HIGH SCORE!</h3>' : ''}
@@ -1123,19 +973,19 @@ function endGame() {
             <p style="font-size:1.2rem;margin:15px 0;"><strong>Best Streak:</strong> ${gameState.streak}</p>
             <p style="font-size:1.1rem;margin:15px 0;"><strong>Innings Played:</strong> ${gameState.inning}</p>
             <p style="font-size:1.3rem;margin-top:25px;color:#ffd700;"><strong>${performance}</strong></p>
-            <p style="font-size:1.1rem;margin-top:25px;color:#ff6b6b;"><strong>Next release: ${getNextRelease()}!</strong></p>
-        </div>`;
+            <p style="font-size:1.1rem;margin-top:25px;color:#ff6b6b;"><strong>Come back ${getNextReleaseDateLabel()} for the next set of questions!</strong></p>
+        </div>
+    `;
 }
 
-// ─────────────────────────────────────────────
-// ACHIEVEMENTS
-// ─────────────────────────────────────────────
+// ─── Achievements ──────────────────────────────────────────────────────────────
 function unlockAchievement(id) {
     if (careerStats.achievements.includes(id)) return;
     careerStats.achievements.push(id);
     showAchievementPopup(achievements[id]);
     saveCareerStats();
 }
+
 function showAchievementPopup(achievement) {
     const popup = document.createElement('div');
     popup.className = 'achievement-popup';
@@ -1143,29 +993,34 @@ function showAchievementPopup(achievement) {
         <div style="font-size:3rem;text-align:center;margin-bottom:10px;">${achievement.icon}</div>
         <div style="font-size:1.2rem;font-weight:bold;text-align:center;margin-bottom:5px;">Achievement Unlocked!</div>
         <div style="font-size:1rem;font-weight:bold;text-align:center;">${achievement.name}</div>
-        <div style="font-size:0.9rem;text-align:center;margin-top:5px;">${achievement.description}</div>`;
+        <div style="font-size:0.9rem;text-align:center;margin-top:5px;">${achievement.description}</div>
+    `;
     document.body.appendChild(popup);
     playSound('homerun');
     setTimeout(() => { popup.classList.add('hide'); setTimeout(() => popup.remove(), 500); }, 4000);
 }
-function saveCareerStats() { localStorage.setItem('mlbCareerStats', JSON.stringify(careerStats)); }
 
-// ─────────────────────────────────────────────
-// STATS MODAL
-// ─────────────────────────────────────────────
+function saveCareerStats() {
+    localStorage.setItem('mlbCareerStats', JSON.stringify(careerStats));
+}
+
+// ─── Stats Modal ───────────────────────────────────────────────────────────────
 function showStats() {
-    const total  = careerStats.totalCorrect + careerStats.totalIncorrect;
-    const avg    = total > 0 ? Math.round((careerStats.totalCorrect / total) * 1000).toString().padStart(3,'0') : '000';
+    const total = careerStats.totalCorrect + careerStats.totalIncorrect;
+    const avg = total > 0 ? Math.round((careerStats.totalCorrect / total) * 1000).toString().padStart(3,'0') : '000';
     const winPct = careerStats.gamesPlayed > 0 ? ((careerStats.wins / careerStats.gamesPlayed) * 100).toFixed(1) : '0.0';
-    let achHTML  = careerStats.achievements.length === 0
-        ? '<p style="opacity:0.7;">No achievements yet. Keep playing!</p>'
+
+    let achHTML = careerStats.achievements.length === 0
+        ? '<p style="opacity:0.7;">No achievements unlocked yet. Keep playing!</p>'
         : careerStats.achievements.map(id => {
             const a = achievements[id];
             return `<div style="background:rgba(255,255,255,0.1);padding:15px;border-radius:10px;margin-bottom:10px;">
                 <div style="font-size:2rem;">${a.icon}</div>
                 <div style="font-weight:bold;margin-top:5px;">${a.name}</div>
-                <div style="font-size:0.9rem;opacity:0.8;">${a.description}</div></div>`;
-          }).join('');
+                <div style="font-size:0.9rem;opacity:0.8;">${a.description}</div>
+            </div>`;
+        }).join('');
+
     document.getElementById('statsContent').innerHTML = `
         <div style="background:rgba(255,255,255,0.1);padding:20px;border-radius:10px;margin-bottom:15px;">
             <h3 style="color:#ffd700;margin-bottom:15px;">Overall Statistics</h3>
@@ -1177,16 +1032,18 @@ function showStats() {
             <p style="margin:10px 0;"><strong>Best Streak:</strong> ${careerStats.bestStreak}</p>
             <p style="margin:10px 0;"><strong>High Score:</strong> ${gameState.highScore} runs</p>
         </div>
-        <div style="margin-top:20px;"><h3 style="color:#ffd700;margin-bottom:15px;">Achievements</h3>${achHTML}</div>`;
+        <div style="margin-top:20px;"><h3 style="color:#ffd700;margin-bottom:15px;">Achievements</h3>${achHTML}</div>
+    `;
     document.getElementById('statsModal').style.display = 'block';
 }
-function closeStatsModal() { document.getElementById('statsModal').style.display = 'none'; }
 
-// ─────────────────────────────────────────────
-// SHARE
-// ─────────────────────────────────────────────
+function closeStatsModal() {
+    document.getElementById('statsModal').style.display = 'none';
+}
+
+// ─── Share ─────────────────────────────────────────────────────────────────────
 function shareResults() {
-    const avg  = Math.round((gameState.currentGameCorrect / 9) * 1000).toString().padStart(3,'0');
+    const avg = Math.round((gameState.currentGameCorrect / 9) * 1000).toString().padStart(3,'0');
     const text = `MLB Trivia Baseball ⚾\n\nFinal Score: ${gameState.runs}-${gameState.opponentRuns}\nBatting Avg: .${avg}\nStreak: ${gameState.streak}\n\nPlay at: [Your URL Here]`;
     if (navigator.share) {
         navigator.share({ title: 'MLB Trivia Baseball', text }).catch(() => copyToClipboard(text));
@@ -1194,6 +1051,7 @@ function shareResults() {
         copyToClipboard(text);
     }
 }
+
 function copyToClipboard(text) {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -1204,30 +1062,25 @@ function copyToClipboard(text) {
     alert('Results copied to clipboard!');
 }
 
-// ─────────────────────────────────────────────
-// MISC
-// ─────────────────────────────────────────────
+// ─── Misc ──────────────────────────────────────────────────────────────────────
 function toggleSound() {
     gameState.soundEnabled = !gameState.soundEnabled;
     const el = document.getElementById('soundToggle');
     el.textContent = gameState.soundEnabled ? '🔊' : '🔇';
     el.classList.toggle('muted', !gameState.soundEnabled);
 }
-function toggleRules() {
-    const rc  = document.getElementById('rulesContent');
-    const btn = document.querySelector('.rules-toggle');
-    rc.classList.toggle('open');
-    btn.textContent = rc.classList.contains('open') ? '📖 Hide Rules' : '📖 Show Full Rules';
-}
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    preloadAudio();
-    loadPlayerNames();
-    loadQuestions();
-});
+function toggleRules() {
+    const rc = document.getElementById('rulesContent');
+    const btn = document.querySelector('.rules-toggle');
+    if (rc.classList.contains('open')) {
+        rc.classList.remove('open');
+        btn.textContent = '📖 Show Full Rules';
+    } else {
+        rc.classList.add('open');
+        btn.textContent = '📖 Hide Rules';
+    }
+}
 </script>
 </body>
 </html>
