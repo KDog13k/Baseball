@@ -156,6 +156,7 @@
 
     <!-- Welcome Screen -->
     <div id="welcomeScreen" class="welcome-screen">
+        <div id="previewBanner" style="display:none; background:#ffd700; color:#1a1a2e; font-weight:bold; padding:8px 16px; border-radius:8px; margin-bottom:20px; font-size:0.9rem;">🔧 PREVIEW MODE</div>
         <h1>⚾ MLB TRIVIA</h1>
         <div class="subtitle">Daily Challenge</div>
         <p class="tagline">Test your Baseball IQ every Tuesday, Friday and Sunday.</p>
@@ -296,6 +297,8 @@ let gameState = {
     selectedAnswer: null,
     streak: 0,
     bestStreakThisGame: 0,
+    homeRunsThisGame: 0,
+    wasDownByThreePlus: false,
     timerEnabled: false,
     timerInterval: null,
     timeRemaining: 30,
@@ -542,11 +545,28 @@ async function loadQuestions() {
     resolveTodaysQuestionSet();
 }
 
+function getPreviewDateOverride() {
+    const params = new URLSearchParams(window.location.search);
+    const preview = params.get('preview');
+    if (preview && /^\d{4}-\d{2}-\d{2}$/.test(preview)) return preview;
+    return null;
+}
+
 function resolveTodaysQuestionSet() {
     if (sortedDates.length === 0) {
         todaysQuestionSet = null;
         return;
     }
+
+    const previewDate = getPreviewDateOverride();
+    if (previewDate && questionsByDate[previewDate]) {
+        activeDateUsed = previewDate;
+        todaysQuestionSet = questionsByDate[previewDate];
+        console.log('🔧 PREVIEW MODE — showing question set for:', activeDateUsed);
+        showPreviewBanner(activeDateUsed);
+        return;
+    }
+
     const todayStr = getLocalDateString(); // YYYY-MM-DD, player's own local calendar date
 
     if (questionsByDate[todayStr]) {
@@ -558,6 +578,19 @@ function resolveTodaysQuestionSet() {
     }
     todaysQuestionSet = questionsByDate[activeDateUsed];
     console.log('Using question set for date:', activeDateUsed);
+
+    // If a preview param was given but didn't match any date, still flag it so it's not silent
+    if (previewDate) {
+        console.log('⚠️ Preview date not found in schedule, falling back to normal resolution.');
+    }
+}
+
+function showPreviewBanner(dateUsed) {
+    const banner = document.getElementById('previewBanner');
+    if (banner) {
+        banner.textContent = `🔧 PREVIEW MODE — showing ${dateUsed}`;
+        banner.style.display = 'inline-block';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -568,9 +601,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ─── Game Start ────────────────────────────────────────────────────────────────
 function startGame() {
+    const isPreview = !!getPreviewDateOverride();
     const lastPlayed = localStorage.getItem('mlbTriviaLastPlayed');
     const today = new Date().toDateString();
-    if (lastPlayed === today) {
+    if (!isPreview && lastPlayed === today) {
         alert(`You've already played today! Come back ${getNextReleaseDateLabel()} for the next set of questions.`);
         return;
     }
@@ -598,6 +632,8 @@ function resetGameState() {
     gameState.selectedAnswer = null;
     gameState.streak = 0;
     gameState.bestStreakThisGame = 0;
+    gameState.homeRunsThisGame = 0;
+    gameState.wasDownByThreePlus = false;
     gameState.currentGameCorrect = 0;
     gameState.currentGameIncorrect = 0;
     gameState.currentQuestion = null;
@@ -757,8 +793,13 @@ function submitAnswer() {
     } else {
         isCorrect = gameState.selectedAnswer === q.correctIndex;
         document.querySelectorAll('.answer-option').forEach((opt, i) => {
-            if (i === q.correctIndex) opt.classList.add('correct');
-            else if (i === gameState.selectedAnswer && !isCorrect) opt.classList.add('incorrect');
+            if (i === q.correctIndex) {
+                opt.classList.add('correct');
+                opt.innerHTML = `${opt.textContent} <span aria-hidden="true">✓</span>`;
+            } else if (i === gameState.selectedAnswer && !isCorrect) {
+                opt.classList.add('incorrect');
+                opt.innerHTML = `${opt.textContent} <span aria-hidden="true">✗</span>`;
+            }
             opt.onclick = null;
         });
     }
@@ -806,6 +847,8 @@ function submitAnswer() {
                 resultText = 'HOME RUN! All runners score!';
                 gameState.runs += countRunnersOnBase() + 1;
                 clearBases();
+                gameState.homeRunsThisGame++;
+                if (gameState.homeRunsThisGame >= 3 && !careerStats.achievements.includes('slugger')) unlockAchievement('slugger');
                 break;
             default:
                 playSound('hit');
@@ -845,12 +888,16 @@ function submitAnswer() {
 
     const msgEl = document.getElementById('resultMessage');
     msgEl.style.whiteSpace = 'pre-wrap';
-    msgEl.textContent = resultText;
+    msgEl.textContent = `${isCorrect ? '✓' : '✗'} ${resultText}`;
     msgEl.style.backgroundColor = isCorrect ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)';
     msgEl.style.display = 'block';
 
     document.getElementById('submitAnswer').style.display = 'none';
     document.getElementById('continueBtn').style.display = 'inline-block';
+
+    if (gameState.opponentRuns - gameState.runs >= 3) {
+        gameState.wasDownByThreePlus = true;
+    }
 
     updateDisplay();
     saveCareerStats();
@@ -875,7 +922,7 @@ function handleTiebreakerResult(isCorrect, q) {
     }
     const msgEl = document.getElementById('resultMessage');
     msgEl.style.whiteSpace = 'pre-wrap';
-    msgEl.textContent = msg;
+    msgEl.textContent = `${isCorrect ? '✓' : '✗'} ${msg}`;
     msgEl.style.backgroundColor = isCorrect ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)';
     msgEl.style.display = 'block';
     document.getElementById('submitAnswer').style.display = 'none';
@@ -943,7 +990,10 @@ function endGame() {
     if (gameState.gameOver) return;
     gameState.gameOver = true;
 
-    localStorage.setItem('mlbTriviaLastPlayed', new Date().toDateString());
+    const isPreview = !!getPreviewDateOverride();
+    if (!isPreview) {
+        localStorage.setItem('mlbTriviaLastPlayed', new Date().toDateString());
+    }
 
     careerStats.gamesPlayed++;
     const won = gameState.runs > gameState.opponentRuns;
@@ -952,6 +1002,7 @@ function endGame() {
     if (gameState.currentGameCorrect === 9 && !careerStats.achievements.includes('perfectGame')) unlockAchievement('perfectGame');
     if (careerStats.gamesPlayed >= 10   && !careerStats.achievements.includes('veteran'))     unlockAchievement('veteran');
     if (careerStats.totalCorrect >= 100 && !careerStats.achievements.includes('scholar'))     unlockAchievement('scholar');
+    if (won && gameState.wasDownByThreePlus && !careerStats.achievements.includes('comeback')) unlockAchievement('comeback');
 
     if (gameState.runs > gameState.highScore) {
         gameState.highScore = gameState.runs;
