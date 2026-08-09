@@ -395,6 +395,15 @@ function stripAccents(str) {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+// Returns YYYY-MM-DD using the PLAYER'S LOCAL device date/timezone,
+// so the daily rotation switches at each player's own midnight.
+function getLocalDateString(d = new Date()) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // Used for STRICT equality checks (answer validation) - collapses all whitespace
 // so "A.J. Ellis" and "A. J. Ellis" are treated the same.
 function normalizeAnswer(str) {
@@ -457,7 +466,7 @@ function showSuggestions(query) {
 // ─── Schedule Helpers ────────────────────────────────────────────────────────────
 function getNextReleaseDateLabel() {
     if (sortedDates.length === 0) return 'soon';
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getLocalDateString();
     const future = sortedDates.filter(d => d > todayStr);
     if (future.length === 0) return 'soon';
     const nextDate = new Date(future[0] + 'T00:00:00');
@@ -538,7 +547,7 @@ function resolveTodaysQuestionSet() {
         todaysQuestionSet = null;
         return;
     }
-    const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD, local calendar date
+    const todayStr = getLocalDateString(); // YYYY-MM-DD, player's own local calendar date
 
     if (questionsByDate[todayStr]) {
         activeDateUsed = todayStr;
