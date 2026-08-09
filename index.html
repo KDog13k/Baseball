@@ -11,7 +11,7 @@
         .scoreboard { background: linear-gradient(135deg, #1e3c72, #2a5298); color: #fff; border: 3px solid #ffd700; border-radius: 15px; padding: 25px; font-family: 'Courier New', monospace; box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 50px rgba(255,215,0,0.2); width: 100%; max-width: 800px; position: relative; z-index: 10; backdrop-filter: blur(10px); animation: glow 2s ease-in-out infinite alternate; }
         @keyframes glow { from { box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 30px rgba(255,215,0,0.2); } to { box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 50px rgba(255,215,0,0.4); } }
         .scoreboard-header { text-align: center; color: #ffd700; font-size: 1.8rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); letter-spacing: 3px; font-weight: bold; }
-        .score-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; font-size: 1.1rem; margin-bottom: 15px; text-align: center; }
+        .score-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 1.1rem; margin-bottom: 15px; text-align: center; }
         .score-item { padding: 10px; border: 2px solid #ffd700; border-radius: 8px; background: rgba(0,30,60,0.6); text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: all 0.3s ease; }
         .score-item:hover { transform: scale(1.05); background: rgba(255,215,0,0.1); }
         .score-item span { font-size: 1.8rem; color: #ffd700; font-weight: bold; }
@@ -203,10 +203,9 @@
             <div class="scoreboard-header">TRIVIA SCOREBOARD</div>
             <div class="score-row">
                 <div class="score-item">INNING<br><span id="inning">1</span></div>
+                <div class="score-item">OUTS<br><span id="outs">0</span></div>
                 <div class="score-item">YOUR RUNS<br><span id="runs">0</span></div>
                 <div class="score-item">OPPONENT RUNS<br><span id="opponentRuns">0</span></div>
-                <div class="score-item">OUTS<br><span id="outs">0</span></div>
-                <div class="score-item">ANSWERED<br><span id="completed">0</span>/9</div>
             </div>
             <div class="bonus-row">
                 <div class="bonus-item">HIGH SCORE: <span id="highScore">0</span></div>
@@ -608,7 +607,6 @@ function updateDisplay() {
     document.getElementById('runs').textContent = gameState.runs;
     document.getElementById('opponentRuns').textContent = gameState.opponentRuns;
     document.getElementById('outs').textContent = gameState.outs;
-    document.getElementById('completed').textContent = gameState.answeredPositions;
     document.getElementById('streak').textContent = gameState.streak;
     document.getElementById('highScore').textContent = gameState.highScore;
 
