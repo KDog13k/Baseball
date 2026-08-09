@@ -316,18 +316,21 @@ let careerStats = {
     totalCorrect: 0,
     totalIncorrect: 0,
     bestStreak: 0,
+    totalHomeRuns: 0,
     achievements: []
 };
 
 if (localStorage.getItem('mlbTriviaHighScore'))
     gameState.highScore = parseInt(localStorage.getItem('mlbTriviaHighScore'));
-if (localStorage.getItem('mlbCareerStats'))
+if (localStorage.getItem('mlbCareerStats')) {
     careerStats = JSON.parse(localStorage.getItem('mlbCareerStats'));
+    if (typeof careerStats.totalHomeRuns !== 'number') careerStats.totalHomeRuns = 0;
+}
 
 // ─── Achievements ──────────────────────────────────────────────────────────────
 const achievements = {
     perfectGame: { name: 'Perfect Game',    description: 'Answer all 9 questions correctly', icon: '🏆' },
-    slugger:     { name: 'Slugger',         description: 'Hit 3 home runs in one game',       icon: '💪' },
+    slugger:     { name: 'Slugger',         description: 'Hit 10 career home runs',            icon: '💪' },
     hotStreak:   { name: 'Hot Streak',      description: 'Get 5 correct answers in a row',    icon: '🔥' },
     comeback:    { name: 'Comeback Kid',    description: 'Win after being down by 3+ runs',   icon: '⭐' },
     veteran:     { name: 'Veteran Player',  description: 'Play 10 games',                     icon: '🎖️' },
@@ -848,7 +851,8 @@ function submitAnswer() {
                 gameState.runs += countRunnersOnBase() + 1;
                 clearBases();
                 gameState.homeRunsThisGame++;
-                if (gameState.homeRunsThisGame >= 3 && !careerStats.achievements.includes('slugger')) unlockAchievement('slugger');
+                careerStats.totalHomeRuns++;
+                if (careerStats.totalHomeRuns >= 10 && !careerStats.achievements.includes('slugger')) unlockAchievement('slugger');
                 break;
             default:
                 playSound('hit');
@@ -1092,6 +1096,7 @@ function showStats() {
             <p style="margin:10px 0;"><strong>Total Correct:</strong> ${careerStats.totalCorrect}</p>
             <p style="margin:10px 0;"><strong>Total Incorrect:</strong> ${careerStats.totalIncorrect}</p>
             <p style="margin:10px 0;"><strong>Best Streak:</strong> ${careerStats.bestStreak}</p>
+            <p style="margin:10px 0;"><strong>Career Home Runs:</strong> ${careerStats.totalHomeRuns}</p>
             <p style="margin:10px 0;"><strong>High Score:</strong> ${gameState.highScore} runs</p>
         </div>
         <div style="margin-top:20px;"><h3 style="color:#ffd700;margin-bottom:15px;">Achievements</h3>${achHTML}</div>
