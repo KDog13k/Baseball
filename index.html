@@ -682,7 +682,7 @@ function openQuestion(position, positionName) {
 // ─── Display Question ──────────────────────────────────────────────────────────
 function displayQuestion(question, positionName, position) {
     document.getElementById('positionTitle').textContent = positionName
-        ? `${positionName} (Position ${position})`
+        ? positionName
         : '⚡ TIEBREAKER QUESTION';
     document.getElementById('questionText').textContent = question.question;
     document.getElementById('difficultyBadge').textContent = question.difficulty.toUpperCase();
