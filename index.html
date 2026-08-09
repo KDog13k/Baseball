@@ -466,7 +466,7 @@ function getNextReleaseDateLabel() {
 
 async function loadQuestions() {
     try {
-        const response = await fetch('https://raw.githubusercontent.com/KDog13k/Baseball/main/MLB%20Trivia%20Questions%20-%20MLB%20Trivia%20Questions.csv');
+        const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQpLfUzGIEGTTgiH_vGJWtRfv5m_Y47Ux8hiToGn3X8b9Ih7uCKU1XxyyjaIaMWIERv8xGvDO69cL90/pub?output=csv');
         if (!response.ok) throw new Error('CSV fetch failed');
         const csvData = await response.text();
         const lines = csvData.split('\n').filter(l => l.trim());
