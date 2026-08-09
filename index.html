@@ -295,7 +295,7 @@ let gameState = {
     currentPosition: null,
     selectedAnswer: null,
     streak: 0,
-    highScore: 0,
+    bestStreakThisGame: 0,
     timerEnabled: false,
     timerInterval: null,
     timeRemaining: 30,
@@ -597,6 +597,7 @@ function resetGameState() {
     gameState.currentPosition = null;
     gameState.selectedAnswer = null;
     gameState.streak = 0;
+    gameState.bestStreakThisGame = 0;
     gameState.currentGameCorrect = 0;
     gameState.currentGameIncorrect = 0;
     gameState.currentQuestion = null;
@@ -812,6 +813,7 @@ function submitAnswer() {
         }
 
         gameState.streak++;
+        if (gameState.streak > gameState.bestStreakThisGame) gameState.bestStreakThisGame = gameState.streak;
         if (gameState.streak > careerStats.bestStreak) careerStats.bestStreak = gameState.streak;
         if (gameState.streak >= 5 && !careerStats.achievements.includes('hotStreak')) unlockAchievement('hotStreak');
 
@@ -979,7 +981,7 @@ function endGame() {
             <p style="font-size:1.3rem;margin:15px 0;"><strong>Opponent Runs:</strong> ${gameState.opponentRuns}</p>
             <p style="font-size:1.3rem;margin:15px 0;color:${netScore>=0?'#2ecc71':'#e74c3c'}"><strong>Final Score:</strong> ${gameState.runs}-${gameState.opponentRuns}</p>
             <p style="font-size:1.2rem;margin:15px 0;"><strong>Batting Average:</strong> .${battingAvg}</p>
-            <p style="font-size:1.2rem;margin:15px 0;"><strong>Best Streak:</strong> ${gameState.streak}</p>
+            <p style="font-size:1.2rem;margin:15px 0;"><strong>Best Streak:</strong> ${gameState.bestStreakThisGame}</p>
             <p style="font-size:1.1rem;margin:15px 0;"><strong>Innings Played:</strong> ${gameState.inning}</p>
             <p style="font-size:1.3rem;margin-top:25px;color:#ffd700;"><strong>${performance}</strong></p>
             <p style="font-size:1.1rem;margin-top:25px;color:#ff6b6b;"><strong>Come back ${getNextReleaseDateLabel()} for the next set of questions!</strong></p>
@@ -1053,7 +1055,7 @@ function closeStatsModal() {
 // ─── Share ─────────────────────────────────────────────────────────────────────
 function shareResults() {
     const avg = Math.round((gameState.currentGameCorrect / 9) * 1000).toString().padStart(3,'0');
-    const text = `MLB Trivia Baseball ⚾\n\nFinal Score: ${gameState.runs}-${gameState.opponentRuns}\nBatting Avg: .${avg}\nStreak: ${gameState.streak}\n\nPlay at: [Your URL Here]`;
+    const text = `MLB Trivia Baseball ⚾\n\nFinal Score: ${gameState.runs}-${gameState.opponentRuns}\nBatting Avg: .${avg}\nBest Streak: ${gameState.bestStreakThisGame}\n\nPlay at: [Your URL Here]`;
     if (navigator.share) {
         navigator.share({ title: 'MLB Trivia Baseball', text }).catch(() => copyToClipboard(text));
     } else {
