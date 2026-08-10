@@ -241,7 +241,11 @@
         <h2 style="color: #ffd700; font-size: 2.5rem; margin-bottom: 30px;">Game Complete!</h2>
         <div id="finalStats"></div>
         <div id="achievementsEarned" style="margin-top: 20px;"></div>
-        <button class="share-btn" onclick="shareResults()">Share Results</button>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+            <button class="share-btn" onclick="shareResults()">Share Results</button>
+            <button class="share-btn" onclick="toggleReview()" id="reviewToggleBtn" style="background: linear-gradient(135deg, #56ab2f, #a8e063);">📋 Review Questions</button>
+        </div>
+        <div id="reviewContent" style="display:none; text-align:left; margin-top: 20px; max-height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px;"></div>
     </div>
 </div>
 
@@ -271,6 +275,7 @@
             <button onclick="closeModal(); checkGameOver();" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 1.1rem; font-weight: bold;">Close</button>
         </div>
         <div id="resultMessage" style="display: none; margin-top: 20px; padding: 20px; border-radius: 10px; font-weight: bold; text-align: center; font-size: 1.2rem; color: white;"></div>
+        <div id="explanationBox" class="explanation-box" style="display: none;"></div>
     </div>
 </div>
 
@@ -306,7 +311,8 @@ let gameState = {
     currentGameCorrect: 0,
     currentGameIncorrect: 0,
     currentQuestion: null,
-    gameOver: false
+    gameOver: false,
+    answerLog: []
 };
 
 let careerStats = {
@@ -320,11 +326,19 @@ let careerStats = {
     achievements: []
 };
 
-if (localStorage.getItem('mlbTriviaHighScore'))
-    gameState.highScore = parseInt(localStorage.getItem('mlbTriviaHighScore'));
+if (localStorage.getItem('mlbTriviaHighScore')) {
+    const savedHighScore = parseInt(localStorage.getItem('mlbTriviaHighScore'));
+    if (!isNaN(savedHighScore)) gameState.highScore = savedHighScore;
+}
 if (localStorage.getItem('mlbCareerStats')) {
-    careerStats = JSON.parse(localStorage.getItem('mlbCareerStats'));
-    if (typeof careerStats.totalHomeRuns !== 'number') careerStats.totalHomeRuns = 0;
+    try {
+        const parsed = JSON.parse(localStorage.getItem('mlbCareerStats'));
+        if (parsed && typeof parsed === 'object') careerStats = parsed;
+        if (typeof careerStats.totalHomeRuns !== 'number') careerStats.totalHomeRuns = 0;
+    } catch (e) {
+        console.log('Saved career stats were corrupted, starting fresh:', e);
+        // careerStats keeps its default values from initialization above
+    }
 }
 
 // ─── Achievements ──────────────────────────────────────────────────────────────
@@ -529,7 +543,7 @@ async function loadQuestions() {
             const type = (cols[idx.type] || 'mc').toLowerCase();
             const questionText = cols[idx.question];
             const rawAnswer = cols[idx.answer];
-            const explanation = cols[idx.explanation] || 'Great job!';
+            const explanation = cols[idx.explanation] || '';
 
             if (!releaseDate || !position || !questionText) continue; // skip undated spare pool for now
 
@@ -619,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── Game Start ────────────────────────────────────────────────────────────────
-function startGame() {
+async function startGame() {
     const isPreview = !!getPreviewDateOverride();
     const lastPlayed = localStorage.getItem('mlbTriviaLastPlayed');
     const today = new Date().toDateString();
@@ -628,8 +642,16 @@ function startGame() {
         return;
     }
     if (!todaysQuestionSet) {
-        alert('Questions are still loading. Please wait a moment and try again.');
-        return;
+        // First load may still be in-flight, or it may have failed outright — try again live.
+        const playBtn = document.querySelector('.welcome-screen button[onclick="startGame()"]');
+        if (playBtn) { playBtn.disabled = true; playBtn.textContent = 'Loading questions...'; }
+        await loadQuestions();
+        if (playBtn) { playBtn.disabled = false; playBtn.textContent = 'PLAY BALL ⚾'; }
+
+        if (!todaysQuestionSet) {
+            alert("Couldn't load today's questions. Please check your internet connection and try again.");
+            return;
+        }
     }
     gameState.timerEnabled = document.getElementById('timerMode').checked;
     document.getElementById('welcomeScreen').style.display = 'none';
@@ -653,6 +675,16 @@ function resetGameState() {
     gameState.bestStreakThisGame = 0;
     gameState.homeRunsThisGame = 0;
     gameState.wasDownByThreePlus = false;
+    gameState.answerLog = [];
+
+    // Clear cached review content from any previous game so it rebuilds fresh
+    const reviewContentEl = document.getElementById('reviewContent');
+    if (reviewContentEl) {
+        reviewContentEl.innerHTML = '';
+        reviewContentEl.style.display = 'none';
+    }
+    const reviewBtn = document.getElementById('reviewToggleBtn');
+    if (reviewBtn) reviewBtn.textContent = '📋 Review Questions';
     gameState.currentGameCorrect = 0;
     gameState.currentGameIncorrect = 0;
     gameState.currentQuestion = null;
@@ -747,6 +779,7 @@ function displayQuestion(question, positionName, position) {
     document.getElementById('submitAnswer').style.display = 'inline-block';
     document.getElementById('continueBtn').style.display = 'none';
     document.getElementById('resultMessage').style.display = 'none';
+    document.getElementById('explanationBox').style.display = 'none';
 
     document.getElementById('continueBtn').onclick = continueGame;
     document.getElementById('continueBtn').textContent = 'Continue';
@@ -825,6 +858,27 @@ function submitAnswer() {
 
     const difficulty = q.difficulty.toLowerCase();
 
+    // Capture what the player actually answered, in readable form, for the post-game review
+    let userAnswerDisplay;
+    if (q.type === 'ff') {
+        const rawInput = (document.getElementById('ffAnswerInput').value || '').trim();
+        userAnswerDisplay = rawInput || '(no answer entered)';
+    } else {
+        userAnswerDisplay = gameState.selectedAnswer >= 0 && q.options[gameState.selectedAnswer]
+            ? q.options[gameState.selectedAnswer]
+            : '(no answer / time expired)';
+    }
+    const correctAnswerDisplay = q.type === 'ff' ? q.answer : q.options[q.correctIndex];
+
+    gameState.answerLog.push({
+        position: q.position || 'Tiebreaker',
+        question: q.question,
+        userAnswer: userAnswerDisplay,
+        correctAnswer: correctAnswerDisplay,
+        isCorrect,
+        explanation: q.explanation || ''
+    });
+
     if (gameState.currentPosition === 'tiebreaker') {
         handleTiebreakerResult(isCorrect, q);
         return;
@@ -898,12 +952,9 @@ function submitAnswer() {
         }
     }
 
-    // Show correct answer for fill-in-the-blank, plus explanation
+    // For fill-in-the-blank, always show the correct answer in the main result banner
     if (q.type === 'ff') {
         resultText += `\n\nCorrect answer: ${q.answer}`;
-    }
-    if (q.explanation) {
-        resultText += `\n\n📖 ${q.explanation}`;
     }
 
     const msgEl = document.getElementById('resultMessage');
@@ -911,6 +962,15 @@ function submitAnswer() {
     msgEl.textContent = `${isCorrect ? '✓' : '✗'} ${resultText}`;
     msgEl.style.backgroundColor = isCorrect ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)';
     msgEl.style.display = 'block';
+
+    // Explanation gets its own readable box, and only shows when real content exists
+    const explBox = document.getElementById('explanationBox');
+    if (q.explanation && q.explanation.trim()) {
+        explBox.textContent = `📖 ${q.explanation}`;
+        explBox.style.display = 'block';
+    } else {
+        explBox.style.display = 'none';
+    }
 
     document.getElementById('submitAnswer').style.display = 'none';
     document.getElementById('continueBtn').style.display = 'inline-block';
@@ -945,6 +1005,14 @@ function handleTiebreakerResult(isCorrect, q) {
     msgEl.textContent = `${isCorrect ? '✓' : '✗'} ${msg}`;
     msgEl.style.backgroundColor = isCorrect ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)';
     msgEl.style.display = 'block';
+
+    const explBox = document.getElementById('explanationBox');
+    if (q.explanation && q.explanation.trim()) {
+        explBox.textContent = `📖 ${q.explanation}`;
+        explBox.style.display = 'block';
+    } else {
+        explBox.style.display = 'none';
+    }
     document.getElementById('submitAnswer').style.display = 'none';
 
     const contBtn = document.getElementById('continueBtn');
@@ -1125,6 +1193,38 @@ function closeStatsModal() {
 }
 
 // ─── Share ─────────────────────────────────────────────────────────────────────
+// ─── Post-Game Review ──────────────────────────────────────────────────────────
+function toggleReview() {
+    const content = document.getElementById('reviewContent');
+    const btn = document.getElementById('reviewToggleBtn');
+    const isOpen = content.style.display === 'block';
+
+    if (isOpen) {
+        content.style.display = 'none';
+        btn.textContent = '📋 Review Questions';
+        return;
+    }
+
+    if (content.innerHTML === '') {
+        content.innerHTML = gameState.answerLog.map((entry, i) => `
+            <div style="padding: 12px 0; ${i > 0 ? 'border-top: 1px solid rgba(255,255,255,0.15);' : ''}">
+                <div style="font-size: 0.8rem; color: ${entry.isCorrect ? '#a8e063' : '#f45c43'}; font-weight: bold; margin-bottom: 4px;">
+                    ${entry.isCorrect ? '✓' : '✗'} ${entry.position}
+                </div>
+                <div style="font-size: 0.95rem; margin-bottom: 6px;">${entry.question}</div>
+                <div style="font-size: 0.85rem; opacity: 0.85;">
+                    Your answer: <strong>${entry.userAnswer}</strong>
+                    ${!entry.isCorrect ? `<br>Correct answer: <strong>${entry.correctAnswer}</strong>` : ''}
+                </div>
+                ${entry.explanation ? `<div style="font-size: 0.8rem; opacity: 0.7; margin-top: 6px; font-style: italic;">📖 ${entry.explanation}</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    content.style.display = 'block';
+    btn.textContent = '📋 Hide Questions';
+}
+
 function shareResults() {
     const avg = Math.round((gameState.currentGameCorrect / 9) * 1000).toString().padStart(3,'0');
     const text = `MLB Trivia Baseball ⚾\n\nFinal Score: ${gameState.runs}-${gameState.opponentRuns}\nBatting Avg: .${avg}\nBest Streak: ${gameState.bestStreakThisGame}\n\nPlay at: [Your URL Here]`;
