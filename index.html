@@ -626,8 +626,9 @@ function showPreviewBanner(dateUsed) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadQuestions();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadQuestions();
+    attemptResumeGame();
     loadPlayerNames();
     preloadAudio();
 });
@@ -981,6 +982,7 @@ function submitAnswer() {
 
     updateDisplay();
     saveCareerStats();
+    saveGameProgress();
 }
 
 // ─── Tiebreaker Result ─────────────────────────────────────────────────────────
@@ -1022,6 +1024,7 @@ function handleTiebreakerResult(isCorrect, q) {
 
     updateDisplay();
     saveCareerStats();
+    saveGameProgress();
 }
 
 // ─── Continue Game ─────────────────────────────────────────────────────────────
@@ -1077,6 +1080,7 @@ function closeModal() {
 function endGame() {
     if (gameState.gameOver) return;
     gameState.gameOver = true;
+    clearGameProgress();
 
     const isPreview = !!getPreviewDateOverride();
     if (!isPreview) {
@@ -1152,6 +1156,101 @@ function showAchievementPopup(achievement) {
 
 function saveCareerStats() {
     localStorage.setItem('mlbCareerStats', JSON.stringify(careerStats));
+}
+
+// ─── Mid-Game Progress Persistence ──────────────────────────────────────────────
+function saveGameProgress() {
+    const snapshot = {
+        activeDateUsed,
+        inning: gameState.inning,
+        runs: gameState.runs,
+        opponentRuns: gameState.opponentRuns,
+        outs: gameState.outs,
+        completedPositions: gameState.completedPositions,
+        answeredPositions: gameState.answeredPositions,
+        bases: gameState.bases,
+        streak: gameState.streak,
+        bestStreakThisGame: gameState.bestStreakThisGame,
+        homeRunsThisGame: gameState.homeRunsThisGame,
+        wasDownByThreePlus: gameState.wasDownByThreePlus,
+        currentGameCorrect: gameState.currentGameCorrect,
+        currentGameIncorrect: gameState.currentGameIncorrect,
+        answerLog: gameState.answerLog,
+        timerEnabled: gameState.timerEnabled,
+        highScore: gameState.highScore
+    };
+    try {
+        localStorage.setItem('mlbTriviaInProgress', JSON.stringify(snapshot));
+    } catch (e) {
+        console.log('Could not save game progress:', e);
+    }
+}
+
+function clearGameProgress() {
+    localStorage.removeItem('mlbTriviaInProgress');
+}
+
+function attemptResumeGame() {
+    const saved = localStorage.getItem('mlbTriviaInProgress');
+    if (!saved) return;
+
+    let snapshot;
+    try {
+        snapshot = JSON.parse(saved);
+    } catch (e) {
+        console.log('Saved game progress was corrupted, discarding:', e);
+        clearGameProgress();
+        return;
+    }
+
+    // Only resume if it's progress from the SAME question set that's currently active.
+    // If the schedule has moved to a new date since they left, the saved progress is stale.
+    if (!snapshot || snapshot.activeDateUsed !== activeDateUsed) {
+        clearGameProgress();
+        return;
+    }
+
+    // Restore game state from the snapshot
+    Object.assign(gameState, {
+        inning: snapshot.inning,
+        runs: snapshot.runs,
+        opponentRuns: snapshot.opponentRuns,
+        outs: snapshot.outs,
+        completedPositions: snapshot.completedPositions,
+        answeredPositions: snapshot.answeredPositions,
+        bases: snapshot.bases,
+        streak: snapshot.streak,
+        bestStreakThisGame: snapshot.bestStreakThisGame,
+        homeRunsThisGame: snapshot.homeRunsThisGame,
+        wasDownByThreePlus: snapshot.wasDownByThreePlus,
+        currentGameCorrect: snapshot.currentGameCorrect,
+        currentGameIncorrect: snapshot.currentGameIncorrect,
+        answerLog: snapshot.answerLog || [],
+        timerEnabled: snapshot.timerEnabled,
+        gameOver: false
+    });
+
+    // Jump straight into the game screen, skipping the welcome screen entirely
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'block';
+
+    // Re-mark each already-answered position on the field based on the answer log
+    gameState.answerLog.forEach(entry => {
+        if (entry.position === 'Tiebreaker') return; // tiebreaker has no field position
+        const posNum = Object.keys(positionNames).find(k => positionNames[k] === entry.position);
+        if (!posNum) return;
+        const posEl = document.querySelector(`[data-position="${posNum}"]`);
+        if (posEl) {
+            posEl.classList.add(entry.isCorrect ? 'completed' : 'incorrect');
+            posEl.setAttribute('onclick', '');
+        }
+    });
+
+    updateDisplay();
+
+    // If they'd already finished all 9 and it was headed to (or already in) a tiebreaker,
+    // pick that flow back up too.
+    checkGameOver();
 }
 
 // ─── Stats Modal ───────────────────────────────────────────────────────────────
