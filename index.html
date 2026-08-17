@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB Baseball Trivia Field - Enhanced</title>
+    <title>BaseWits</title>
+
+    <!-- Add to Home Screen support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2d5f3f">
+
+    <!-- iOS home screen support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BaseWits">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Arial', sans-serif; background: linear-gradient(to bottom, #1a1a2e, #0f0f1e); min-height: 100vh; overflow-x: auto; }
@@ -105,22 +115,22 @@
         @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .achievement-popup.hide { animation: slideOutRight 0.5s ease forwards; }
         @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
-        .welcome-screen, .game-over { text-align: center; background: linear-gradient(135deg, #0a1929 0%, #1a2332 50%, #0a1929 100%); padding: 50px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-width: 700px; width: 90%; border: 4px solid #c8102e; color: white; position: relative; overflow: hidden; }
-        .welcome-screen::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(200, 16, 46, 0.03) 10px, rgba(200, 16, 46, 0.03) 20px); animation: slide 20s linear infinite; pointer-events: none; }
+        .welcome-screen, .game-over { text-align: center; background: linear-gradient(135deg, #14291d 0%, #1f4530 50%, #14291d 100%); padding: 50px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-width: 700px; width: 90%; border: 4px solid #5c3a1e; color: white; position: relative; overflow: hidden; }
+        .welcome-screen::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(245, 234, 217, 0.04) 10px, rgba(245, 234, 217, 0.04) 20px); animation: slide 20s linear infinite; pointer-events: none; }
         @keyframes slide { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
         .welcome-screen h1 { color: #fff; font-size: 3rem; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5); position: relative; z-index: 1; }
-        .welcome-screen .subtitle { color: #c8102e; font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
-        .tagline { font-size: 1.1rem; color: #a0a0a0; margin-bottom: 30px; font-style: italic; }
-        .quick-info { background: rgba(200, 16, 46, 0.15); border: 2px solid #c8102e; border-radius: 15px; padding: 20px; margin: 25px 0; position: relative; z-index: 1; }
+        .welcome-screen .subtitle { color: #f5ead9; font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        .tagline { font-size: 1.1rem; color: #ffffff; margin-bottom: 30px; font-style: italic; }
+        .quick-info { background: rgba(74, 46, 20, 0.4); border: 2px solid #5c3a1e; border-radius: 15px; padding: 20px; margin: 25px 0; position: relative; z-index: 1; }
         .quick-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .info-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border-left: 3px solid #c8102e; }
-        .info-item-title { color: #c8102e; font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
+        .info-item { background: rgba(74, 46, 20, 0.9); padding: 15px; border-radius: 10px; border-left: 3px solid #5c3a1e; }
+        .info-item-title { color: #ffffff; font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
         .info-item-desc { font-size: 0.85rem; color: #d0d0d0; }
-        .rules-toggle { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: bold; margin: 20px 0; transition: all 0.3s ease; position: relative; z-index: 1; }
-        .rules-toggle:hover { background: rgba(255,255,255,0.2); border-color: #c8102e; }
+        .rules-toggle { background: rgba(74,46,20,0.9); border: 2px solid #5c3a1e; color: white; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: bold; margin: 20px 0; transition: all 0.3s ease; position: relative; z-index: 1; }
+        .rules-toggle:hover { background: rgba(92,58,30,0.9); border-color: #7fb069; }
         .rules-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; text-align: left; }
         .rules-content.open { max-height: 800px; }
-        .timer-option { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 20px 0; position: relative; z-index: 1; }
+        .timer-option { background: rgba(74,46,20,0.9); padding: 15px; border-radius: 10px; margin: 20px 0; position: relative; z-index: 1; }
         .share-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: 2px solid #ffd700; padding: 12px 25px; font-size: 1rem; border-radius: 25px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: all 0.3s ease; }
         .share-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         @media (max-width: 768px) {
@@ -157,8 +167,8 @@
     <!-- Welcome Screen -->
     <div id="welcomeScreen" class="welcome-screen">
         <div id="previewBanner" style="display:none; background:#ffd700; color:#1a1a2e; font-weight:bold; padding:8px 16px; border-radius:8px; margin-bottom:20px; font-size:0.9rem;">🔧 PREVIEW MODE</div>
-        <h1>⚾ MLB TRIVIA</h1>
-        <div class="subtitle">Daily Challenge</div>
+        <h1>⚾ BaseWits</h1>
+        <div class="subtitle">Outsmart the Diamond</div>
         <p class="tagline">Test your Baseball IQ every Tuesday, Friday and Sunday.</p>
         <div class="quick-info">
             <p style="color: #fff; font-weight: bold; margin-bottom: 15px;">HOW IT WORKS</p>
@@ -171,15 +181,15 @@
         </div>
         <button class="rules-toggle" onclick="toggleRules()">📖 Show Full Rules</button>
         <div id="rulesContent" class="rules-content">
-            <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin: 15px 0; border: 2px solid rgba(200,16,46,0.3);">
-                <h3 style="color: #c8102e; margin-bottom: 15px; text-align: left;">Scoring System:</h3>
+            <div style="background: rgba(74,46,20,0.9); padding: 25px; border-radius: 15px; margin: 15px 0; border: 2px solid #5c3a1e;">
+                <h3 style="color: #7fb069; margin-bottom: 15px; text-align: left;">Scoring System:</h3>
                 <ul style="list-style: none; padding-left: 0; text-align: left;">
                     <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #2ecc71;">🟢 <strong>Easy:</strong> Single<br><span style="opacity: 0.7; font-size: 0.9em;">(advance 1 base)</span></li>
                     <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #f2994a;">🟡 <strong>Medium:</strong> Double<br><span style="opacity: 0.7; font-size: 0.9em;">(advance 2 bases)</span></li>
                     <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #e74c3c;">🔴 <strong>Hard:</strong> Triple<br><span style="opacity: 0.7; font-size: 0.9em;">(advance 3 bases)</span></li>
                     <li style="margin: 10px 0; padding-left: 20px; border-left: 3px solid #8e2de2;">🟣 <strong>Nightmare:</strong> Home Run!</li>
                 </ul>
-                <h3 style="color: #c8102e; margin: 25px 0 15px 0; text-align: left;">Game Rules:</h3>
+                <h3 style="color: #7fb069; margin: 25px 0 15px 0; text-align: left;">Game Rules:</h3>
                 <ul style="list-style: none; padding-left: 0; text-align: left;">
                     <li style="margin: 10px 0;">• Three wrong answers = inning over, bases cleared</li>
                     <li style="margin: 10px 0;">• Opponent scores on each wrong answer</li>
@@ -195,7 +205,7 @@
                 <span style="font-size: 1rem; text-align: left;">⏱️ Timer Mode<br><span style="opacity: 0.7; font-size: 0.85em;">(30 seconds per question)</span></span>
             </label>
         </div>
-        <button onclick="startGame()" style="background: linear-gradient(135deg, #c8102e, #8b0a1f); color: white; border: none; padding: 20px 50px; font-size: 1.4rem; border-radius: 35px; cursor: pointer; font-weight: bold; margin-top: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: all 0.3s ease; position: relative; z-index: 1;">PLAY BALL ⚾</button>
+        <button onclick="startGame()" style="background: linear-gradient(135deg, #4a2e14, #3a2410); color: white; border: none; padding: 20px 50px; font-size: 1.4rem; border-radius: 35px; cursor: pointer; font-weight: bold; margin-top: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: all 0.3s ease; position: relative; z-index: 1;">PLAY BALL ⚾</button>
     </div>
 
     <!-- Game Screen -->
