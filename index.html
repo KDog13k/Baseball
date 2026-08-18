@@ -209,6 +209,10 @@
             </label>
         </div>
         <button onclick="startGame()" style="background: linear-gradient(135deg, #4a2e14, #3a2410); color: white; border: none; padding: 20px 50px; font-size: 1.4rem; border-radius: 35px; cursor: pointer; font-weight: bold; margin-top: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: all 0.3s ease; position: relative; z-index: 1;">PLAY BALL ⚾</button>
+
+        <div id="installBtnContainer" style="display:none; margin-top: 18px; position: relative; z-index: 1;">
+            <button id="installBtn" onclick="handleInstallClick()" style="background: rgba(255,255,255,0.1); border: 2px solid #7fb069; color: white; padding: 10px 22px; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: bold;">📲 Add to Home Screen</button>
+        </div>
     </div>
 
     <!-- Game Screen -->
@@ -603,7 +607,67 @@ document.addEventListener('DOMContentLoaded', async () => {
     attemptResumeGame();
     loadPlayerNames();
     preloadAudio();
+    setupInstallPrompt();
 });
+
+// ─── Add to Home Screen ──────────────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+
+function isRunningStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function setupInstallPrompt() {
+    // Already installed - nothing to offer
+    if (isRunningStandalone()) return;
+
+    const container = document.getElementById('installBtnContainer');
+    const btn = document.getElementById('installBtn');
+
+    // Android/Chrome/Edge: browser tells us when it's actually installable
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        container.style.display = 'block';
+    });
+
+    // iOS Safari never fires beforeinstallprompt, and has no programmatic install
+    // trigger at all - so show the button with manual instructions instead.
+    if (isIOS()) {
+        container.style.display = 'block';
+        btn.textContent = '📲 Add to Home Screen';
+    }
+
+    // If the app WAS installed while the page is open, hide the button
+    window.addEventListener('appinstalled', () => {
+        container.style.display = 'none';
+        deferredInstallPrompt = null;
+    });
+}
+
+async function handleInstallClick() {
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        console.log('Install prompt outcome:', outcome);
+        deferredInstallPrompt = null;
+        if (outcome === 'accepted') {
+            document.getElementById('installBtnContainer').style.display = 'none';
+        }
+        return;
+    }
+
+    if (isIOS()) {
+        alert('To install BaseWits:\n\n1. Tap the Share button (square with an arrow) at the bottom of Safari\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
+        return;
+    }
+
+    alert('Look for an install icon in your browser\'s address bar, or check your browser menu for "Install app" / "Add to Home Screen".');
+}
 
 // ─── Game Start ────────────────────────────────────────────────────────────────
 async function startGame() {
