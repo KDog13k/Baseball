@@ -1360,11 +1360,16 @@ function toggleReview() {
     btn.textContent = '📋 Hide Questions';
 }
 
+function isMobileDevice() {
+    return /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+}
+
 function shareResults() {
     const avg = Math.round((gameState.currentGameCorrect / 9) * 1000).toString().padStart(3,'0');
-    const text = `MLB Trivia Baseball ⚾\n\nFinal Score: ${gameState.runs}-${gameState.opponentRuns}\nBatting Avg: .${avg}\nBest Streak: ${gameState.bestStreakThisGame}\n\nPlay at: [Your URL Here]`;
-    if (navigator.share) {
-        navigator.share({ title: 'MLB Trivia Baseball', text }).catch(() => copyToClipboard(text));
+    const text = `BaseWits ⚾\n\nFinal Score: ${gameState.runs}-${gameState.opponentRuns}\nBatting Avg: .${avg}\nBest Streak: ${gameState.bestStreakThisGame}\n\nPlay at: https://basewits.com`;
+
+    if (isMobileDevice() && navigator.share) {
+        navigator.share({ title: 'BaseWits', text }).catch(() => copyToClipboard(text));
     } else {
         copyToClipboard(text);
     }
@@ -1377,7 +1382,7 @@ function copyToClipboard(text) {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    alert('Results copied to clipboard!');
+    alert('📋 Results copied to clipboard!\n\nPaste them anywhere you\'d like to share.');
 }
 
 // ─── Misc ──────────────────────────────────────────────────────────────────────
