@@ -704,10 +704,9 @@ async function handleInstallClick() {
 // ─── Game Start ────────────────────────────────────────────────────────────────
 async function startGame() {
     const isPreview = !!getPreviewParams();
-    const lastPlayed = localStorage.getItem('mlbTriviaLastPlayed');
-    const today = new Date().toDateString();
-    if (!isPreview && lastPlayed === today) {
-        alert(`You've already played today! Come back ${getNextReleaseDateLabel()} for the next set of questions.`);
+    const lastPlayedBatch = localStorage.getItem('mlbTriviaLastPlayedBatch');
+    if (!isPreview && lastPlayedBatch && lastPlayedBatch === activeDateUsed) {
+        alert(`You've already played this batch! Come back ${getNextReleaseDateLabel()} for the next set of questions.`);
         return;
     }
     if (!todaysQuestionSet) {
@@ -1152,7 +1151,7 @@ function endGame() {
 
     const isPreview = !!getPreviewParams();
     if (!isPreview) {
-        localStorage.setItem('mlbTriviaLastPlayed', new Date().toDateString());
+        localStorage.setItem('mlbTriviaLastPlayedBatch', activeDateUsed);
     }
 
     careerStats.gamesPlayed++;
