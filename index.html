@@ -56,6 +56,9 @@
         .base-status { padding: 10px; border: 2px solid #666; border-radius: 8px; background: rgba(50,50,50,0.6); font-size: 1rem; transition: all 0.3s ease; }
         .base-occupied { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; font-weight: bold; border-color: #ffd700; animation: baseGlow 1.5s ease-in-out infinite; }
         @keyframes baseGlow { 0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,0.5); } 50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); } }
+        .ticker-bar { width: 100%; max-width: 800px; margin: -20px auto 0; background: #4a2e14; border: 3px solid #7fb069; border-top: 2px solid rgba(255,255,255,0.2); border-radius: 0 0 15px 15px; display: flex; align-items: stretch; overflow: hidden; position: relative; z-index: 5; }
+        .ticker-label { background: #7fb069; color: #14291d; font-weight: bold; font-size: 0.75rem; padding: 10px 14px; display: flex; align-items: center; white-space: nowrap; letter-spacing: 1px; }
+        .ticker-content { padding: 10px 16px; color: #fff; font-size: 0.85rem; display: flex; align-items: center; }
         .field-container { position: relative; width: 100%; max-width: 900px; display: flex; justify-content: center; margin-top: 20px; }
         .baseball-field { position: relative; width: 100%; max-width: 900px; height: 600px; border: 3px solid #333; border-radius: 15px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.5); background-image: url('https://github.com/KDog13k/BB/raw/main/Baseball%20Field.png'); background-color: #2a4d3a; background-size: cover; background-position: center; background-repeat: no-repeat; }
         .position { position: absolute; width: 70px; height: 70px; background: linear-gradient(135deg, #ff4757, #c44569); border: 3px solid white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 14px; z-index: 20; animation: popIn 0.5s ease-out; }
@@ -263,6 +266,10 @@
                     <div id="base3" class="base-status">3rd: Empty</div>
                 </div>
             </div>
+        </div>
+        <div class="ticker-bar">
+            <div class="ticker-label" id="tickerLabel">TIP</div>
+            <div class="ticker-content" id="tickerContent"></div>
         </div>
         <div class="field-container">
             <div class="baseball-field" id="baseballField">
@@ -664,6 +671,26 @@ function showPreviewBanner(dateUsed) {
     }
 }
 
+
+// ─── Scoreboard Ticker ─────────────────────────────────────────────────────────
+const tickerMessages = [
+    { label: 'RULE', text: "A plain name or 'Sr.' both count as the Senior. Only 'Jr.' counts as the Junior." },
+    { label: 'SCHEDULE', text: 'New questions every Tuesday, Friday and Sunday.' },
+    { label: 'STREAK', text: () => `Current streak: ${gameState.streak} in a row` },
+    { label: 'HIGH SCORE', text: () => `Your high score: ${gameState.highScore} runs` }
+];
+let tickerIndex = 0;
+function rotateTicker() {
+    const labelEl = document.getElementById('tickerLabel');
+    const contentEl = document.getElementById('tickerContent');
+    if (!labelEl || !contentEl) return;
+    const msg = tickerMessages[tickerIndex % tickerMessages.length];
+    labelEl.textContent = msg.label;
+    contentEl.textContent = typeof msg.text === 'function' ? msg.text() : msg.text;
+    tickerIndex++;
+}
+setInterval(rotateTicker, 7000);
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadQuestions();
     attemptResumeGame();
@@ -756,6 +783,7 @@ async function startGame() {
     document.getElementById('gameScreen').style.display = 'block';
     resetGameState();
     updateDisplay();
+    rotateTicker();
     playSound('playball');
 }
 
