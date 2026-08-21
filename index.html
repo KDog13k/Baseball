@@ -513,8 +513,37 @@ async function loadPlayerNames() {
         console.log('Sheet-derived name list unavailable:', results[1].reason);
     }
 
-    playerNames = Array.from(nameSet);
-    console.log('Loaded', playerNames.length, 'total names for autocomplete.');
+    let mergedNames = Array.from(nameSet);
+
+    // Collapse accent-only duplicates first (e.g. "Tomas Nido" vs "Tomás Nido")
+    // - keep just one representative per normalized spelling.
+    const seenNormalized = new Map();
+    mergedNames.forEach(name => {
+        const key = normalizeAnswer(name);
+        if (!seenNormalized.has(key)) seenNormalized.set(key, name);
+    });
+    mergedNames = Array.from(seenNormalized.values());
+
+    // Remove ambiguous "bare" names when a more specific version exists in the
+    // pool (e.g. drop bare "Ken Griffey" if "Ken Griffey Jr." is also present).
+    // Sorting first means each name only ever needs to check its immediate
+    // neighbors, not the entire list - stays fast even with ~20,000 names.
+    mergedNames.sort();
+    const toRemove = new Set();
+    for (let i = 0; i < mergedNames.length; i++) {
+        const name = mergedNames[i];
+        for (let j = i + 1; j < mergedNames.length; j++) {
+            const other = mergedNames[j];
+            if (!other.startsWith(name)) break; // sorted order - no more possible matches
+            if (other.startsWith(name + ' ')) {
+                toRemove.add(name);
+                break;
+            }
+        }
+    }
+
+    playerNames = mergedNames.filter(n => !toRemove.has(n));
+    console.log('Loaded', playerNames.length, 'total names for autocomplete (removed', toRemove.size, 'ambiguous duplicates).');
 }
 
 function showSuggestions(query) {
