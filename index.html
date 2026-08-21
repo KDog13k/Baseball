@@ -56,7 +56,7 @@
         .base-status { padding: 10px; border: 2px solid #666; border-radius: 8px; background: rgba(50,50,50,0.6); font-size: 1rem; transition: all 0.3s ease; }
         .base-occupied { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; font-weight: bold; border-color: #ffd700; animation: baseGlow 1.5s ease-in-out infinite; }
         @keyframes baseGlow { 0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,0.5); } 50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); } }
-        .ticker-bar { width: 100%; max-width: 800px; margin: -20px auto 0; background: #4a2e14; border: 3px solid #7fb069; border-top: 2px solid rgba(255,255,255,0.2); border-radius: 0 0 15px 15px; display: flex; align-items: stretch; overflow: hidden; position: relative; z-index: 5; }
+        .ticker-bar { margin-top: 15px; background: #4a2e14; border: 2px solid #7fb069; border-radius: 10px; display: flex; align-items: stretch; overflow: hidden; }
         .ticker-label { background: #7fb069; color: #14291d; font-weight: bold; font-size: 0.75rem; padding: 10px 14px; display: flex; align-items: center; white-space: nowrap; letter-spacing: 1px; }
         .ticker-content { padding: 10px 16px; color: #fff; font-size: 0.85rem; display: flex; align-items: center; }
         .field-container { position: relative; width: 100%; max-width: 900px; display: flex; justify-content: center; margin-top: 20px; }
@@ -266,10 +266,10 @@
                     <div id="base3" class="base-status">3rd: Empty</div>
                 </div>
             </div>
-        </div>
-        <div class="ticker-bar">
-            <div class="ticker-label" id="tickerLabel">TIP</div>
-            <div class="ticker-content" id="tickerContent"></div>
+            <div class="ticker-bar">
+                <div class="ticker-label" id="tickerLabel">TIP</div>
+                <div class="ticker-content" id="tickerContent"></div>
+            </div>
         </div>
         <div class="field-container">
             <div class="baseball-field" id="baseballField">
@@ -347,6 +347,7 @@
 <script>
 // ─── Game State ────────────────────────────────────────────────────────────────
 let gameState = {
+    highScore: 0,
     inning: 1,
     runs: 0,
     opponentRuns: 0,
