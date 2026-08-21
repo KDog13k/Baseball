@@ -674,23 +674,49 @@ function showPreviewBanner(dateUsed) {
 
 
 // ─── Scoreboard Ticker ─────────────────────────────────────────────────────────
+const FACTS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6xmr56fFL9xL34rAo-WIr1zsLa3idJVcqYZQTIWh9cRnYxo0t109-_KEEGrUzMz5_Bo9xapiuBfMX/pub?output=csv';
+let todaysFact = null;
+
+async function loadTodaysFact() {
+    try {
+        const res = await fetch(FACTS_URL);
+        if (!res.ok) return;
+        const csv = await res.text();
+        const lines = csv.split('\n').filter(l => l.trim());
+        const todayKey = getLocalDateString(); // YYYY-MM-DD, same as the trivia game
+        const matches = [];
+        for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',');
+            const rowDate = (cols[0] || '').trim();
+            if (rowDate === todayKey) {
+                matches.push(cols.slice(1).join(',').trim().replace(/^"|"$/g, ''));
+            }
+        }
+        if (matches.length > 0) {
+            todaysFact = matches[Math.floor(Math.random() * matches.length)];
+        }
+    } catch (e) { /* fact is optional - ticker still works without it */ }
+}
+
 const tickerMessages = [
     { label: 'RULE', text: "A plain name or 'Sr.' both count as the Senior. Only 'Jr.' counts as the Junior." },
-    { label: 'SCHEDULE', text: 'New questions every Tuesday, Friday and Sunday.' },
-    { label: 'STREAK', text: () => `Current streak: ${gameState.streak} in a row` },
-    { label: 'HIGH SCORE', text: () => `Your high score: ${gameState.highScore} runs` }
+    { label: 'SCHEDULE', text: 'New questions every Tuesday, Friday and Sunday.' }
 ];
 let tickerIndex = 0;
 function rotateTicker() {
     const labelEl = document.getElementById('tickerLabel');
     const contentEl = document.getElementById('tickerContent');
     if (!labelEl || !contentEl) return;
-    const msg = tickerMessages[tickerIndex % tickerMessages.length];
+    const messages = todaysFact
+        ? [...tickerMessages, { label: 'ON THIS DAY', text: todaysFact }]
+        : tickerMessages;
+    const msg = messages[tickerIndex % messages.length];
     labelEl.textContent = msg.label;
     contentEl.textContent = typeof msg.text === 'function' ? msg.text() : msg.text;
     tickerIndex++;
 }
 setInterval(rotateTicker, 7000);
+loadTodaysFact();
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadQuestions();
