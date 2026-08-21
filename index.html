@@ -492,29 +492,44 @@ const teamNames = [
 ];
 
 async function loadPlayerNames() {
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/KDog13k/Baseball/main/mlb_player_names.json');
-        if (!response.ok) throw new Error('Player names fetch failed');
-        const data = await response.json();
-        playerNames = (data.names || []).concat(teamNames);
-        console.log('Loaded', playerNames.length, 'names (players + teams) for autocomplete.');
-    } catch (error) {
-        console.log('Player name fetch failed, using team names only:', error);
-        playerNames = [...teamNames];
+    const results = await Promise.allSettled([
+        fetch('https://raw.githubusercontent.com/KDog13k/Baseball/main/mlb_player_names.json').then(r => r.ok ? r.json() : Promise.reject('bad response')),
+        fetch(WORKER_URL + '?mode=names').then(r => r.ok ? r.json() : Promise.reject('bad response'))
+    ]);
+
+    const nameSet = new Set(teamNames);
+
+    if (results[0].status === 'fulfilled' && Array.isArray(results[0].value.names)) {
+        results[0].value.names.forEach(n => nameSet.add(n));
+    } else {
+        console.log('Static player name list unavailable:', results[0].reason);
     }
+
+    if (results[1].status === 'fulfilled' && Array.isArray(results[1].value.names)) {
+        // These are pulled directly from the Sheet's own answers, so they're
+        // guaranteed correct even if the static list above is missing something.
+        results[1].value.names.forEach(n => nameSet.add(n));
+    } else {
+        console.log('Sheet-derived name list unavailable:', results[1].reason);
+    }
+
+    playerNames = Array.from(nameSet);
+    console.log('Loaded', playerNames.length, 'total names for autocomplete.');
 }
 
 function showSuggestions(query) {
     const box = document.getElementById('ffSuggestions');
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (q.length < 2 || playerNames.length === 0) {
         box.classList.remove('open');
         box.innerHTML = '';
         return;
     }
-    const qNorm = stripAccents(q);
+    // Use the same forgiving normalization as answer grading, so "AJ Ellis"
+    // correctly matches a stored "A. J. Ellis" while typing, not just at submit time.
+    const qNorm = normalizeAnswer(q);
     const matches = playerNames
-        .filter(n => stripAccents(n.toLowerCase()).includes(qNorm))
+        .filter(n => normalizeAnswer(n).includes(qNorm))
         .slice(0, 8);
 
     if (matches.length === 0) {
