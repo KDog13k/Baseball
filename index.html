@@ -528,22 +528,8 @@ async function loadPlayerNames() {
     // pool (e.g. drop bare "Ken Griffey" if "Ken Griffey Jr." is also present).
     // Sorting first means each name only ever needs to check its immediate
     // neighbors, not the entire list - stays fast even with ~20,000 names.
-    mergedNames.sort();
-    const toRemove = new Set();
-    for (let i = 0; i < mergedNames.length; i++) {
-        const name = mergedNames[i];
-        for (let j = i + 1; j < mergedNames.length; j++) {
-            const other = mergedNames[j];
-            if (!other.startsWith(name)) break; // sorted order - no more possible matches
-            if (other.startsWith(name + ' ')) {
-                toRemove.add(name);
-                break;
-            }
-        }
-    }
-
-    playerNames = mergedNames.filter(n => !toRemove.has(n));
-    console.log('Loaded', playerNames.length, 'total names for autocomplete (removed', toRemove.size, 'ambiguous duplicates).');
+    playerNames = mergedNames;
+    console.log('Loaded', playerNames.length, 'total names for autocomplete.');
 }
 
 function showSuggestions(query) {
